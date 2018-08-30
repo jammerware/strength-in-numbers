@@ -2,9 +2,6 @@ import * as Request from 'request';
 
 export class TwilioApiProvider {
     public getToken(userId: string, roomId: string): Promise<any> {
-        // tslint:disable-next-line:no-console
-        console.log('twilio env', process.env);
-
         return new Promise((resolve, reject) => {
             if (!process.env.REACT_APP_TWILIO_TOKEN_ENDPOINT) {
                 throw new Error("The app's Twilio token endpoint hasn't been configured.");
@@ -18,6 +15,8 @@ export class TwilioApiProvider {
                 .post({
                     url: process.env.REACT_APP_TWILIO_TOKEN_ENDPOINT,
                     form: {
+                        userId,
+                        roomId,
                         twilioApiKey: process.env.REACT_APP_TWILIO_API_KEY,
                         twilioApiSecret: process.env.REACT_APP_TWILIO_API_SECRET
                     },
@@ -26,15 +25,11 @@ export class TwilioApiProvider {
                             reject(error);
                         }
 
-                        // tslint:disable-next-line:no-console
-                        console.log('things', error, response, body);
-                        resolve(body);
+                        // tslint:disable
+                        const parsedBody = JSON.parse(body);
+                        resolve(parsedBody.token);
                     }
                 });
         });
-    }
-
-    public getThing() {
-        return "Hi!";
     }
 }

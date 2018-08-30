@@ -1,20 +1,9 @@
 import * as React from 'react';
 import './App.css';
-
+import { LocalVideoComponent } from './components/component-local-video';
 import logo from './logo.svg';
-import { TwilioApiProvider } from './providers/provider-twilio-api';
 
 class App extends React.Component {
-    private twilioApi = new TwilioApiProvider();
-
-    constructor(props: any) {
-        super(props);
-    }
-
-    public async componentDidMount() {
-        await this.twilioApi.getToken("ben", "friends");
-    }
-
     public render() {
         return (
             <div className="app">
@@ -24,8 +13,9 @@ class App extends React.Component {
                 </header>
                 <p className="App-intro">
                     To get started, edit <code>src/App.tsx</code> and save to reload.
-                    {this.twilioApi.getThing()}
                 </p>
+
+                <LocalVideoComponent />
             </div>
         );
     }
