@@ -1,6 +1,9 @@
 import * as React from 'react';
+import { Route, Link } from 'react-router-dom';
+import { LandingComponent } from './components/landing/component-landing';
+import { RoomComponent } from './components/room/component-room';
+import { RoomsComponent } from './components/rooms/component-rooms';
 import './App.css';
-import { LocalVideoComponent } from './components/local-video/component-local-video';
 import logo from './logo.svg';
 
 class App extends React.Component {
@@ -12,7 +15,16 @@ class App extends React.Component {
                     <h1 className="app-title">Strength in Numbers</h1>
                 </header>
 
-                <LocalVideoComponent />
+                <nav>
+                    <Link to="/">Home</Link>
+                    <Link to="/rooms">Rooms</Link>
+                    <Link to="/rooms/1234">Video tech demo</Link>
+                </nav>
+                <div className="content-container">
+                    <Route path="/rooms" exact component={RoomsComponent} />
+                    <Route path="/rooms/:roomId" component={RoomComponent} />
+                    <Route path="/" exact component={LandingComponent} />
+                </div>
             </div>
         );
     }

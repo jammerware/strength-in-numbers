@@ -1,18 +1,22 @@
 import * as React from 'react';
 import * as Video from 'twilio-video';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
-import './component-local-video.css';
+import './component-room.css';
 
 // tslint:disable
-interface LocalVideoState {
+interface RoomProps extends RouteComponentProps<any> {
+    hello: string;
+}
+
+interface RoomState {
     accessToken: string | null;
     identity: string;
-    roomName: string;
 
     connectedToRoom?: any;
 }
 
-export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
+class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     private twilioApi = new TwilioApiProvider();
     private localParticipantMediaRef = React.createRef<HTMLDivElement>();
     private remoteMediaRef = React.createRef<HTMLDivElement>();
@@ -20,10 +24,11 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
     constructor(props: any) {
         super(props);
 
+        console.log('props', props);
+
         this.state = {
             identity: "",
             accessToken: null,
-            roomName: "friends",
         };
     }
 
@@ -34,7 +39,7 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
         }
 
         return (
-            <div className="local-video-component">
+            <div className="room-component">
                 <p>
                     <strong>Token: </strong>
                     {tokenBlock}
@@ -53,7 +58,6 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
         );
     }
 
-    // Attach the Participant's Tracks to the DOM.
     private attachParticipantTracks(participant: any, container: React.RefObject<HTMLDivElement>) {
         console.log(`Connecting tracks for`, participant);
         const tracks = Array.from(participant.tracks.values());
@@ -69,18 +73,19 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
     }
 
     private handleConnect = async () => {
-        const token = await this.twilioApi.getToken(this.state.identity, this.state.roomName);
+        const roomId = this.props.match.params.roomId;
+        const token = await this.twilioApi.getToken(this.state.identity, roomId);
         this.setState({ accessToken: token });
 
         Video
-            .connect(this.state.accessToken, { name: this.state.roomName })
+            .connect(this.state.accessToken, { name: roomId })
             .then((room: any) => {
                 this.setState({ connectedToRoom: room });
                 this.attachParticipantTracks(room.localParticipant, this.localParticipantMediaRef);
 
                 // attach tracks for all existing participants
                 room.participants.forEach((participant: any) => {
-                    console.log("Already in room", participant);
+                    console.log('Already in room', participant.identity);
                     this.attachParticipantTracks(participant, this.remoteMediaRef);
                 });
 
@@ -107,3 +112,6 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
         this.setState({ identity: event.target.value });
     }
 }
+
+const RoomComponent = withRouter(RoomComponentWithoutRouter);
+export { RoomComponent }
