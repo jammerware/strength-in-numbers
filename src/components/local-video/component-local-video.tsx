@@ -21,7 +21,7 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
         super(props);
 
         this.state = {
-            identity: "ben",
+            identity: "",
             accessToken: null,
             roomName: "friends",
         };
@@ -46,7 +46,7 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
                 <h2>Other people</h2>
                 <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
 
-                <input type="text" value={this.state.identity} onChange={this.handleNameChange} />
+                <input type="text" autoFocus value={this.state.identity} onChange={this.handleNameChange} />
                 <button onClick={this.handleConnect}>Connect</button>
                 <button onClick={this.handleDisconnect}>Disconnect</button>
             </div>
