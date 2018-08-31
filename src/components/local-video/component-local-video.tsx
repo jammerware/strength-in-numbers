@@ -1,13 +1,15 @@
 import * as React from 'react';
 import * as Video from 'twilio-video';
-import { TwilioApiProvider } from '../providers/provider-twilio-api';
+import { TwilioApiProvider } from '../../providers/provider-twilio-api';
+import './component-local-video.css';
 
+// tslint:disable
 interface LocalVideoState {
     accessToken: string | null;
     identity: string;
     roomName: string;
 
-    connectedToRoom: any;
+    connectedToRoom?: any;
 }
 
 export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
@@ -22,8 +24,6 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
             identity: "ben",
             accessToken: null,
             roomName: "friends",
-
-            connectedToRoom: null,
         };
     }
 
@@ -44,7 +44,7 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
                 <div ref={this.localParticipantMediaRef} />
 
                 <h2>Other people</h2>
-                <div ref={this.remoteMediaRef} />
+                <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
 
                 <input type="text" value={this.state.identity} onChange={this.handleNameChange} />
                 <button onClick={this.handleConnect}>Connect</button>
@@ -55,9 +55,13 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
 
     // Attach the Participant's Tracks to the DOM.
     private attachParticipantTracks(participant: any, container: React.RefObject<HTMLDivElement>) {
+        console.log(`Connecting tracks for`, participant);
         const tracks = Array.from(participant.tracks.values());
+        this.attachTracks(tracks, container);
+    }
 
-        tracks.forEach((track: any) => {
+    private attachTracks(tracks: any[], container: React.RefObject<HTMLDivElement>) {
+        tracks.forEach((track: any, key: any) => {
             if (container.current) {
                 container.current.appendChild(track.attach());
             }
@@ -75,15 +79,20 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
                 this.attachParticipantTracks(room.localParticipant, this.localParticipantMediaRef);
 
                 // attach tracks for all existing participants
-                // tslint:disable
                 room.participants.forEach((participant: any) => {
-                    console.log("Already in Room: '" + participant.identity + "'");
+                    console.log("Already in room", participant);
                     this.attachParticipantTracks(participant, this.remoteMediaRef);
                 });
 
                 // handle room events
                 room.on('participantConnected', (participant: any) => {
-                    console.log("Joining: '" + participant.identity + "'");
+                    console.log('Joined', participant);
+                    this.attachParticipantTracks(participant, this.remoteMediaRef);
+                });
+
+                room.on('trackAdded', (track: any, participant: any) => {
+                    console.log(participant.identity + " added track: " + track.kind);
+                    this.attachTracks([track], this.remoteMediaRef);
                 });
             });
     };
@@ -95,6 +104,6 @@ export class LocalVideoComponent extends React.Component<{}, LocalVideoState> {
     }
 
     private handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        this.setState({ identity: event.target.value })
+        this.setState({ identity: event.target.value });
     }
 }
