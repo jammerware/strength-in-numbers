@@ -24,8 +24,6 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     constructor(props: any) {
         super(props);
 
-        console.log('props', props);
-
         this.state = {
             identity: "",
             accessToken: null,
