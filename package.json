@@ -8,6 +8,9 @@
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "firebase": "^5.4.2",
     "firebaseui": "^3.4.0",
@@ -28,6 +31,7 @@
     "@types/react-router-dom": "^4.3.0",
     "@types/request": "^2.47.1",
     "@types/twilio": "0.0.9",
+    "ts-jest": "^23.1.4",
     "typescript": "^3.0.3"
   }
 }
