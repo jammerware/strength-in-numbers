@@ -2,28 +2,27 @@ import { Room } from '../models/room';
 import { Trait } from '../models/trait';
 import { User } from '../models/user';
 
+// tslint:disable
 export class RoomRecommendationProvider {
     public recommendRooms(rooms: Room[], user: User, trait: Trait): Room[] {
-        // first, we need to compute the current diversity of each possible room
+        // sort the rooms by order of diversity impact
         const orderedRooms = rooms.sort((a, b) => {
-            const aDiversity = this.getRoomDiversity(a, trait.name, trait.possibleValues);
-            const bDiversity = this.getRoomDiversity(b, trait.name, trait.possibleValues);
+            const aDiversity = this.getDiversityImpact(user, a, trait);
+            const bDiversity = this.getDiversityImpact(user, b, trait);
 
-            if (aDiversity < bDiversity) { return -1; }
+            console.log('a diversity impact', aDiversity);
+
+            if (aDiversity < bDiversity) { return 1; }
             else if (aDiversity === bDiversity) { return 0; }
-            return 1;
+            return -1;
         });
-        // then we need to compute the diversity of each room if the user were to join it (the user's "diversity impact")
-        // TODO: compute diversity impact
 
-        // then we just order the rooms in descending order of diversity impact
-        // NOTE: this isn't a real implementation because of L#18
         return orderedRooms;
     }
 
-    public getRoomDiversity(room: Room, trait: string, possibleTraitValues: any[]): number {
-        const numberOfParticipants = room.participants.length;
-        const numberOfTraitValues = possibleTraitValues.length;
+    public getDiversity(users: User[], trait: Trait): number {
+        const numberOfParticipants = users.length;
+        const numberOfTraitValues = trait.possibleValues.length;
 
         // sort users into a map of each possible trait value to the users that have it
         // like this: {
@@ -34,13 +33,13 @@ export class RoomRecommendationProvider {
 
         // initialize the map of traits to users with an empty array of users for each trait
         const traitUsersMap = new Map<any, User[]>();
-        for (const possibleValue of possibleTraitValues) {
+        for (const possibleValue of trait.possibleValues) {
             traitUsersMap.set(possibleValue, []);
         }
 
         // sort users by trait
-        for (const user of room.participants) {
-            const traitValue = user[trait];
+        for (const user of users) {
+            const traitValue = user[trait.name];
             const usersWithTraitValue = traitUsersMap.get(traitValue);
 
             usersWithTraitValue!.push(user);
@@ -53,7 +52,7 @@ export class RoomRecommendationProvider {
         // )
         // and sum them to compute the diversity (lower is more diverse)
         let diversity = 0;
-        for (const traitValue of possibleTraitValues) {
+        for (const traitValue of trait.possibleValues) {
             const pctOfUsersWithTrait = (traitUsersMap.get(traitValue)!.length / numberOfParticipants);
             const pctOfUsersWithTraitInIdealRoom = (1 / numberOfTraitValues);
 
@@ -61,5 +60,13 @@ export class RoomRecommendationProvider {
         }
 
         return diversity;
+    }
+
+    public getDiversityImpact(user: User, room: Room, trait: Trait) {
+        const participantsWithProspectiveUser = room.participants.concat(user);
+        const currentRoomDiversity = this.getDiversity(room.participants, trait);
+        const expectedRoomDiversity = this.getDiversity(participantsWithProspectiveUser, trait);
+
+        return expectedRoomDiversity - currentRoomDiversity;
     }
 }
