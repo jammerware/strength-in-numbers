@@ -60,6 +60,7 @@ export class AuthProvider {
                     avatarUrl: firebaseUser.photoURL,
                     displayName: firebaseUser.displayName,
                     email: firebaseUser.displayName,
+                    gender: 'other',
                     googleUid: firebaseUser.uid
                 });
                 console.log('saved');

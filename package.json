@@ -6,10 +6,8 @@
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
-  },
-  "jest": {
-    "testEnvironment": "node"
+    "eject": "react-scripts-ts eject",
+    "test:clean": "jest --clearCache"
   },
   "dependencies": {
     "firebase": "^5.4.2",
