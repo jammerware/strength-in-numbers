@@ -5,7 +5,7 @@ import { User } from '../models/user';
 export class RoomRecommendationProvider {
     public recommendRooms(rooms: Room[], user: User, trait: Trait): Room[] {
         // first, we need to compute the current diversity of each possible room
-        rooms.sort((a, b) => {
+        const orderedRooms = rooms.sort((a, b) => {
             const aDiversity = this.getRoomDiversity(a, trait.name, trait.possibleValues);
             const bDiversity = this.getRoomDiversity(b, trait.name, trait.possibleValues);
 
@@ -15,9 +15,11 @@ export class RoomRecommendationProvider {
             return 1;
         });
         // then we need to compute the diversity of each room if the user were to join it (the user's "diversity impact")
+        // TODO: compute diversity impact
 
         // then we just order the rooms in descending order of diversity impact
-        return rooms;
+        // NOTE: this isn't a real implementation because of L#18
+        return orderedRooms;
     }
 
     public getRoomDiversity(room: Room, trait: string, possibleTraitValues: any[]): number {
@@ -41,11 +43,6 @@ export class RoomRecommendationProvider {
         for (const user of room.participants) {
             const traitValue = user[trait];
             const usersWithTraitValue = traitUsersMap.get(traitValue);
-
-            // if (!usersWithTraitValue) {
-            //     usersWithTraitValue = [];
-            //     traitUsersMap.set(traitValue, usersWithTraitValue);
-            // }
 
             usersWithTraitValue!.push(user);
         }
