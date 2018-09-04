@@ -9,7 +9,6 @@ export class RoomRecommendationProvider {
             const aDiversity = this.getRoomDiversity(a, trait.name, trait.possibleValues);
             const bDiversity = this.getRoomDiversity(b, trait.name, trait.possibleValues);
 
-
             if (aDiversity < bDiversity) { return -1; }
             else if (aDiversity === bDiversity) { return 0; }
             return 1;
