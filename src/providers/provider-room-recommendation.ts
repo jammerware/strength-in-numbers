@@ -47,7 +47,10 @@ export class RoomRecommendationProvider {
         }
 
         // for each trait, take
-        // abs(% of people in the room with the trait - % of people in a room of the same size with perfect diversity that have the trait)
+        // abs(
+        //      % of people in the room with the trait - 
+        //      % of people in a room of the same size with perfect diversity that have the trait
+        // )
         // and sum them to compute the diversity (lower is more diverse)
         let diversity = 0;
         for (const traitValue of possibleTraitValues) {
