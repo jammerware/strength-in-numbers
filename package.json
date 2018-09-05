@@ -10,6 +10,8 @@
     "test:clean": "jest --clearCache"
   },
   "dependencies": {
+    "@material-ui/core": "^3.0.2",
+    "@material-ui/icons": "^3.0.1",
     "firebase": "^5.4.2",
     "firebaseui": "^3.4.0",
     "lodash": "^4.17.10",
