@@ -1,3 +1,4 @@
+import * as mathjs from 'mathjs';
 import { Room } from '../models/room';
 import { Trait } from '../models/trait';
 import { User } from '../models/user';
@@ -51,15 +52,16 @@ export class RoomRecommendationProvider {
         //      % of people in a room of the same size with perfect diversity that have the trait
         // )
         // and sum them to compute the diversity (lower is more diverse)
-        let diversity = 0;
+        let diversity = mathjs.fraction(0);
+        mathjs.config({ number: 'Fraction' });
         for (const traitValue of trait.possibleValues) {
-            const pctOfUsersWithTrait = (traitUsersMap.get(traitValue)!.length / numberOfParticipants);
-            const pctOfUsersWithTraitInIdealRoom = (1 / numberOfTraitValues);
-
-            diversity += Math.abs(pctOfUsersWithTrait - pctOfUsersWithTraitInIdealRoom);
+            const pctOfUsersWithTrait = mathjs.fraction(traitUsersMap.get(traitValue)!.length, numberOfParticipants);
+            const pctOfUsersWithTraitInIdealRoom = mathjs.fraction(1, numberOfTraitValues);
+            const difference = mathjs.abs(mathjs.subtract(pctOfUsersWithTrait, pctOfUsersWithTraitInIdealRoom) as mathjs.Fraction) as mathjs.Fraction;
+            diversity = mathjs.add(diversity, difference) as mathjs.Fraction;
         }
 
-        return diversity;
+        return mathjs.number(diversity) as number;
     }
 
     public getDiversityImpact(user: User, room: Room, trait: Trait) {
