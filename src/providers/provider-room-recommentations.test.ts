@@ -168,7 +168,7 @@ describe('Room recommendation provider', () => {
         expect(recommendations[0].id).toBe('2');
     });
 
-    it('results in expected diversity over a large number of participants and rooms', () => {
+    fit('results in expected diversity over a large number of participants and rooms', () => {
         const provider = new RoomRecommendationProvider();
         const numberOfRooms = 100;
         const numberOfParticipants = 900;

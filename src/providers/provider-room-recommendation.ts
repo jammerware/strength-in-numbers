@@ -2,17 +2,14 @@ import { Room } from '../models/room';
 import { Trait } from '../models/trait';
 import { User } from '../models/user';
 
-// tslint:disable
 export class RoomRecommendationProvider {
     public recommendRooms(rooms: Room[], user: User, trait: Trait): Room[] {
-        // sort the rooms by order of diversity impact
+        // sort the rooms by descending order of diversity impact
         const orderedRooms = rooms.sort((a, b) => {
             const aDiversity = this.getDiversityImpact(user, a, trait);
             const bDiversity = this.getDiversityImpact(user, b, trait);
 
-            console.log('a diversity impact', aDiversity);
-
-            if (aDiversity < bDiversity) { return 1; }
+            if (aDiversity > bDiversity) { return 1; }
             else if (aDiversity === bDiversity) { return 0; }
             return -1;
         });
@@ -21,6 +18,9 @@ export class RoomRecommendationProvider {
     }
 
     public getDiversity(users: User[], trait: Trait): number {
+        // TODO: this is patently ridiculous
+        if (users.length === 0) { return 2; }
+
         const numberOfParticipants = users.length;
         const numberOfTraitValues = trait.possibleValues.length;
 
