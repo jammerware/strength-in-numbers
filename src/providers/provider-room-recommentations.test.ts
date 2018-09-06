@@ -14,7 +14,7 @@ function buildTestingUser(gender: Gender, uid: string): User {
 }
 
 describe('Room recommendation provider', () => {
-    it('computes diversity as 0 when there is 1 of each user with each trait', () => {
+    it('computes diversity as 1.0986122886681096 when there is 1 of each user with each trait', () => {
         const provider = new RoomRecommendationProvider();
 
         const trait = {
@@ -23,34 +23,16 @@ describe('Room recommendation provider', () => {
         };
 
         const users = [
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                gender: 'male',
-                googleUid: '123',
-            },
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '456',
-                gender: 'female'
-            },
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '789',
-                gender: 'other'
-            }
+            buildTestingUser('male', '123'),
+            buildTestingUser('female', '456'),
+            buildTestingUser('other', '789'),
         ];
 
         const diversity = provider.getDiversity(users, trait);
-        expect(diversity).toBe(0);
+        expect(diversity).toBe(1.0986122886681096);
     });
 
-    it('computes diversity as 4/3 when there is only 1 trait value of a possible 3 in the room', () => {
+    it('computes diversity as 0 when there is only 1 trait value of a possible 3 in the room', () => {
         const provider = new RoomRecommendationProvider();
 
         const trait = {
@@ -67,10 +49,10 @@ describe('Room recommendation provider', () => {
         }];
 
         const diversity = provider.getDiversity(users, trait);
-        expect(diversity).toBe(4 / 3);
+        expect(diversity).toBe(0);
     });
 
-    it('computes diversity as 1/3 when there are 2 other, 1 man, and 1 woman in the room', () => {
+    it('computes diversity as 1.0397207708399179 when there are 2 other, 1 man, and 1 woman in the room', () => {
         const provider = new RoomRecommendationProvider();
 
         const trait = {
@@ -79,38 +61,14 @@ describe('Room recommendation provider', () => {
         };
 
         const users = [
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '1',
-                gender: 'other'
-            },
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '2',
-                gender: 'other'
-            },
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '3',
-                gender: 'male'
-            },
-            {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: '4',
-                gender: 'female'
-            },
+            buildTestingUser('other', '1'),
+            buildTestingUser('other', '2'),
+            buildTestingUser('male', '3'),
+            buildTestingUser('female', '4'),
         ];
 
         const diversity = provider.getDiversity(users, trait);
-        expect(diversity).toBe(1 / 3);
+        expect(diversity).toBe(1.0397207708399179);
     });
 
     it('recommends the room when only one room is provided', () => {
@@ -170,8 +128,8 @@ describe('Room recommendation provider', () => {
 
     fit('results in expected diversity over a large number of participants and rooms', () => {
         const provider = new RoomRecommendationProvider();
-        const numberOfRooms = 10;
-        const numberOfParticipants = 100;
+        const numberOfRooms = 3;
+        const numberOfParticipants = 30;
         const rooms: Room[] = [];
         const trait = { name: 'gender', possibleValues: ['male', 'female', 'other'], };
 
@@ -186,20 +144,14 @@ describe('Room recommendation provider', () => {
         // create the requested number of participants and push them into 
         // their first recommended room
         for (let i = 0; i < numberOfParticipants; i++) {
-            const participant = {
-                avatarUrl: null,
-                displayName: null,
-                email: null,
-                googleUid: i.toString(),
-                gender: trait.possibleValues[Math.floor(Math.random() * trait.possibleValues.length)]
-            };
+            const participant = buildTestingUser(trait.possibleValues[Math.floor(Math.random() * trait.possibleValues.length)], i.toString());
 
             const recommendedRooms = provider.recommendRooms(rooms, participant, trait);
             recommendedRooms[0].participants.push(participant);
         }
 
         for (const room of rooms) {
-            // expect(room.participants.length).toBeGreaterThanOrEqual(8);
+            expect(room.participants.length).toBeGreaterThanOrEqual(8);
             expect(room.participants.length).toBeLessThanOrEqual(20);
         }
     });

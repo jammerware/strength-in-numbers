@@ -1,4 +1,3 @@
-import * as mathjs from 'mathjs';
 import { Room } from '../models/room';
 import { Trait } from '../models/trait';
 import { User } from '../models/user';
@@ -10,18 +9,15 @@ export class RoomRecommendationProvider {
             const aDiversity = this.getDiversityImpact(user, a, trait);
             const bDiversity = this.getDiversityImpact(user, b, trait);
 
-            if (aDiversity > bDiversity) { return 1; }
+            if (aDiversity > bDiversity) { return -1; }
             else if (aDiversity === bDiversity) { return 0; }
-            return -1;
+            return 1;
         });
 
         return orderedRooms;
     }
 
     public getDiversity(users: User[], trait: Trait): number {
-        // TODO: this is patently ridiculous
-        if (users.length === 0) { return 2; }
-
         const numberOfParticipants = users.length;
         const numberOfTraitValues = trait.possibleValues.length;
 
@@ -46,22 +42,20 @@ export class RoomRecommendationProvider {
             usersWithTraitValue!.push(user);
         }
 
-        // for each trait, take
-        // abs(
-        //      % of people in the room with the trait - 
-        //      % of people in a room of the same size with perfect diversity that have the trait
-        // )
-        // and sum them to compute the diversity (lower is more diverse)
-        let diversity = mathjs.fraction(0);
-        mathjs.config({ number: 'Fraction' });
+        // for each trait, compute the entropy.
+        // -1*sum(p_i*log(p_i)), where p_i is proportion of each type
+        let entropy = 0;
         for (const traitValue of trait.possibleValues) {
-            const pctOfUsersWithTrait = mathjs.fraction(traitUsersMap.get(traitValue)!.length, numberOfParticipants);
-            const pctOfUsersWithTraitInIdealRoom = mathjs.fraction(1, numberOfTraitValues);
-            const difference = mathjs.abs(mathjs.subtract(pctOfUsersWithTrait, pctOfUsersWithTraitInIdealRoom) as mathjs.Fraction) as mathjs.Fraction;
-            diversity = mathjs.add(diversity, difference) as mathjs.Fraction;
+            const proportionOfUsersWithTrait = traitUsersMap.get(traitValue)!.length / numberOfParticipants;
+            const log = Math.log10(proportionOfUsersWithTrait) || 0;
+            entropy += proportionOfUsersWithTrait * (isFinite(log) ? log : 0);
         }
 
-        return mathjs.number(diversity) as number;
+        if (entropy) {
+            entropy *= -1;
+        }
+
+        return entropy;
     }
 
     public getDiversityImpact(user: User, room: Room, trait: Trait) {
