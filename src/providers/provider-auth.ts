@@ -54,7 +54,6 @@ export class AuthProvider {
 
         firebase.initializeApp(appConfig);
         firebase.auth().onAuthStateChanged(firebaseUser => {
-            // tslint:disable
             if (firebaseUser) {
                 this.storageProvider.saveUser({
                     avatarUrl: firebaseUser.photoURL,
@@ -63,7 +62,6 @@ export class AuthProvider {
                     gender: 'other',
                     googleUid: firebaseUser.uid
                 });
-                console.log('saved');
             }
         });
     }

@@ -19,7 +19,6 @@ export class RoomRecommendationProvider {
 
     public getDiversity(users: User[], trait: Trait): number {
         const numberOfParticipants = users.length;
-        const numberOfTraitValues = trait.possibleValues.length;
 
         // sort users into a map of each possible trait value to the users that have it
         // like this: {
@@ -47,7 +46,7 @@ export class RoomRecommendationProvider {
         let entropy = 0;
         for (const traitValue of trait.possibleValues) {
             const proportionOfUsersWithTrait = traitUsersMap.get(traitValue)!.length / numberOfParticipants;
-            const log = Math.log10(proportionOfUsersWithTrait) || 0;
+            const log = Math.log(proportionOfUsersWithTrait) || 0;
             entropy += proportionOfUsersWithTrait * (isFinite(log) ? log : 0);
         }
 

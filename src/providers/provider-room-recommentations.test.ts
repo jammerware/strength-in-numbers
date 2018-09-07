@@ -144,7 +144,7 @@ describe('Room recommendation provider', () => {
         // create the requested number of participants and push them into 
         // their first recommended room
         for (let i = 0; i < numberOfParticipants; i++) {
-            const participant = buildTestingUser(trait.possibleValues[Math.floor(Math.random() * trait.possibleValues.length)], i.toString());
+            const participant = buildTestingUser(trait.possibleValues[Math.floor(Math.random() * trait.possibleValues.length)] as Gender, i.toString());
 
             const recommendedRooms = provider.recommendRooms(rooms, participant, trait);
             recommendedRooms[0].participants.push(participant);

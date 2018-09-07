@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Typography from '@material-ui/core/Typography';
 
 export class LandingComponent extends React.Component<{}, {}> {
     constructor(props: {}) {
@@ -12,8 +13,12 @@ export class LandingComponent extends React.Component<{}, {}> {
     public render() {
         return (
             <div className="landing-component-wrapper">
-                <h1>Welcome!</h1>
-                <p>This is the landing/home page. Maybe we could have sweet hypespeak here, and maybe a preview of upcoming rooms.</p>
+                <Typography variant="title" color="inherit" noWrap>
+                    Welcome
+                </Typography>
+                <Typography noWrap>
+                    This is the landing/home page. Maybe we could have sweet hypespeak here, and maybe a preview of upcoming rooms.
+                </Typography>
             </div>
         );
     }
