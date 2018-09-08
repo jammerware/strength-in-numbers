@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route, Link } from 'react-router-dom';
+import { withRouter, Route, RouteComponentProps } from 'react-router-dom';
 import classNames from 'classnames';
 import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -16,12 +16,14 @@ import Typography from '@material-ui/core/Typography';
 
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import DeveloperBoardIcon from '@material-ui/icons/DeveloperBoard';
+import InfoIcon from '@material-ui/icons/Info';
 import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import HomeIcon from '@material-ui/icons/Home';
 
+import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
 import { RoomComponent } from '../room/component-room';
-import { RoomsComponent } from '../rooms/component-rooms';
 import { LoginComponent } from '../login/component-login';
 
 const drawerWidth = 240;
@@ -90,7 +92,7 @@ const styles = (theme: Theme) => createStyles({
     },
 });
 
-interface AppProps {
+interface AppProps extends RouteComponentProps<any> {
     classes: any,
     theme: Theme
 }
@@ -140,32 +142,39 @@ class App extends React.Component<AppProps, AppState> {
                     </div>
                     <Divider />
                     <List>
-                        <ListItem button>
+                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/')}>
                             <ListItemIcon>
                                 <HomeIcon />
                             </ListItemIcon>
                             <ListItemText primary="Home" />
                         </ListItem>
-                        <ListItem button>
+                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions')}>
+                            <ListItemIcon>
+                                <DeveloperBoardIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Discussions" />
+                        </ListItem>
+                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/123')}>
                             <ListItemIcon>
                                 <FeaturedVideoIcon />
                             </ListItemIcon>
-                            <ListItemText primary="Rooms" />
+                            <ListItemText primary="Video tech demo" />
                         </ListItem>
                     </List>
                     <Divider />
                     <List>
-                        <ListItem>About</ListItem>
+                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about')}>
+                            <ListItemIcon>
+                                <InfoIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="About" />
+                        </ListItem>
                     </List>
                 </Drawer>
                 <main className={classes.content}>
                     <div className={classes.toolbar} />
-                    <Link to="/">Home</Link>
-                    <Link to="/rooms">Rooms</Link>
-                    <Link to="/rooms/1234">Video tech demo</Link>
-                    <Link to="/login">Log in</Link>
                     <div className="content-container">
-                        <Route path="/rooms" exact component={RoomsComponent} />
+                        <Route path="/discussions" exact component={DiscussionsComponent} />
                         <Route path="/rooms/:roomId" component={RoomComponent} />
                         <Route path="/login" component={LoginComponent} />
                         <Route path="/" exact component={LandingComponent} />
@@ -182,6 +191,11 @@ class App extends React.Component<AppProps, AppState> {
     private handleDrawerClose = () => {
         this.setState({ open: false });
     };
+
+    private handleNavigate = (to: string) => {
+        this.props.history.push(to);
+    }
 }
 
-export default withStyles(styles, { withTheme: true })(App);
+const appWithRouter = withRouter(App);
+export default withStyles(styles, { withTheme: true })(appWithRouter);
