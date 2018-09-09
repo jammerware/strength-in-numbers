@@ -16,7 +16,8 @@
     "jsx-no-lambda": false,
     "interface-name": false,
     "object-literal-sort-keys": false,
-    "ordered-imports": false
+    "ordered-imports": false,
+    "variable-name": false
   },
   "jsRules": {
     "object-literal-sort-keys": false

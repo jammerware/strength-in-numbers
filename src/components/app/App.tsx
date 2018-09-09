@@ -25,6 +25,7 @@ import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
 import { RoomComponent } from '../room/component-room';
 import { LoginComponent } from '../login/component-login';
+import './app.css';
 
 const drawerWidth = 240;
 

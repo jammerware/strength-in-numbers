@@ -76,7 +76,8 @@ describe('Room recommendation provider', () => {
         const room = {
             id: '1',
             name: 'The only room',
-            participants: []
+            participants: [],
+            startTime: Date.now(),
         };
         const user = {
             avatarUrl: null,
@@ -104,7 +105,8 @@ describe('Room recommendation provider', () => {
                     buildTestingUser('female', '1'),
                     buildTestingUser('female', '2'),
                     buildTestingUser('male', '3')
-                ]
+                ],
+                startTime: Date.now(),
             },
             {
                 id: '2',
@@ -112,7 +114,8 @@ describe('Room recommendation provider', () => {
                 participants: [
                     buildTestingUser('other', '4'),
                     buildTestingUser('male', '5')
-                ]
+                ],
+                startTime: Date.now(),
             },
         ];
         const incomingUser = buildTestingUser('female', '6');
@@ -137,7 +140,8 @@ describe('Room recommendation provider', () => {
             rooms.push({
                 id: i.toString(),
                 name: `Room ${i}`,
-                participants: []
+                participants: [],
+                startTime: Date.now(),
             });
         }
 

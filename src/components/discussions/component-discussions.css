@@ -1,0 +1,10 @@
+.component-discussions .discussion-cards {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.component-discussions .discussion-cards li {
+    margin-bottom: 2rem;
+    margin-right: 2rem;
+}
