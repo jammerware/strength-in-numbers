@@ -27,10 +27,13 @@ interface DiscussionCardState {
 
 const styles = (theme: Theme) => createStyles({
     agenda: {
-        marginTop: '2rem',
+        marginTop: theme.spacing.unit * 1.5,
     },
     card: {
-        maxWidth: 360,
+        maxWidth: 380,
+    },
+    chip: {
+        margin: theme.spacing.unit / 4,
     },
     media: {
         height: 140,
@@ -73,6 +76,7 @@ class DiscussionCard extends React.Component<DiscussionCardProps, DiscussionCard
                                     return <Chip
                                         key={room.id}
                                         color="primary"
+                                        className={classes.chip}
                                         label={`${date.toLocaleDateString()} @  ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`} />
                                 })}
                             </div>

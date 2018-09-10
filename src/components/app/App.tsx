@@ -103,6 +103,13 @@ interface AppState {
 }
 
 class App extends React.Component<AppProps, AppState> {
+    // extracted nav handlers to fields to avoid lambdas in JSX
+    // see https://stackoverflow.com/questions/36677733/why-shouldnt-jsx-props-use-arrow-functions-or-bind
+    private _handleNavToHome = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/');
+    private _handleNavToDiscussions = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions');
+    private _handleNavToTechDemo = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/123');
+    private _handleNavToAbout = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about');
+
     constructor(props: AppProps) {
         super(props);
 
@@ -143,19 +150,19 @@ class App extends React.Component<AppProps, AppState> {
                     </div>
                     <Divider />
                     <List>
-                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/')}>
+                        <ListItem button onClick={this._handleNavToHome}>
                             <ListItemIcon>
                                 <HomeIcon />
                             </ListItemIcon>
                             <ListItemText primary="Home" />
                         </ListItem>
-                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions')}>
+                        <ListItem button onClick={this._handleNavToDiscussions}>
                             <ListItemIcon>
                                 <DeveloperBoardIcon />
                             </ListItemIcon>
                             <ListItemText primary="Discussions" />
                         </ListItem>
-                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/123')}>
+                        <ListItem button onClick={this._handleNavToTechDemo}>
                             <ListItemIcon>
                                 <FeaturedVideoIcon />
                             </ListItemIcon>
@@ -164,7 +171,7 @@ class App extends React.Component<AppProps, AppState> {
                     </List>
                     <Divider />
                     <List>
-                        <ListItem button onClick={(event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about')}>
+                        <ListItem button onClick={this._handleNavToAbout}>
                             <ListItemIcon>
                                 <InfoIcon />
                             </ListItemIcon>
