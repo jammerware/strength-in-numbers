@@ -30,13 +30,14 @@ export default class RoomUnavailableComponent extends React.Component<RoomUnavai
     }
 
     public async componentDidMount() {
-        this.setState({ room: await this._discussionsProvider.getRoom(this.props.roomId) });
+        const roomId = this.props.match.params.roomId;
+        this.setState({ room: await this._discussionsProvider.getRoom(roomId) });
 
-        if (await this._roomEntryValidationProvider.getRoomExists(this.props.roomId)) {
+        if (await this._roomEntryValidationProvider.getRoomExists(roomId)) {
             this.setState({ roomExists: true });
         }
 
-        if (await this._roomEntryValidationProvider.canEnterRoom(Date.now(), this.props.roomId)) {
+        if (await this._roomEntryValidationProvider.canEnterRoom(Date.now(), roomId)) {
             this.setState({ canEnterRoom: true });
         }
     }

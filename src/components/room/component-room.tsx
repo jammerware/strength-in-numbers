@@ -2,21 +2,23 @@ import * as React from 'react';
 import * as Video from 'twilio-video';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
-import './component-room.css';
 import { DiscussionsProvider } from '../../providers/provider-discussions';
 import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
+import { Room } from '../../models/room';
+import HelpWithMisconduct from '../help-with-misconduct/component-help-with-misconduct';
 
-// tslint:disable
-interface RoomProps extends RouteComponentProps<any> {
-    hello: string;
-}
+import './component-room.css';
+
+interface RoomProps extends RouteComponentProps<any> { }
 
 interface RoomState {
     accessToken: string | null;
     connectedToRoom?: any;
     identity: string;
+    room?: Room;
 }
 
+// tslint:disable
 class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     private discussionsProvider = new DiscussionsProvider();
     private roomEntryValidationProvider = new RoomEntryValidationProvider(this.discussionsProvider);
@@ -43,10 +45,15 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
 
         if (!await this.roomEntryValidationProvider.canEnterRoom(Date.now(), roomId)) {
             this.props.history.push(`/rooms/${roomId}/unavailable`);
+            return;
         }
+
+        this.setState({ room: await this.discussionsProvider.getRoom(roomId) });
     }
 
     public render() {
+        if (!this.state.room) { return null; }
+
         let tokenBlock = <span>No token yet.</span>
         if (this.state.accessToken) {
             tokenBlock = <span>{this.state.accessToken}</span>;
@@ -68,6 +75,10 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                 <input type="text" autoFocus value={this.state.identity} onChange={this.handleNameChange} />
                 <button onClick={this.handleConnect}>Connect</button>
                 <button onClick={this.handleDisconnect}>Disconnect</button>
+
+                <div className="help-with-misconduct">
+                    <HelpWithMisconduct room={this.state.room} />
+                </div>
             </div>
         );
     }
