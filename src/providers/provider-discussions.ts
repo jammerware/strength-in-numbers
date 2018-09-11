@@ -74,7 +74,9 @@ export class DiscussionsProvider {
     }
 
     public async getRoom(roomId: string): Promise<Room | undefined> {
-        const discussion = await this.getDiscussionForRoom(roomId);
+        const discussions: Discussion[] = await this.getDiscussions();
+        const discussion = discussions.find(d => !!d.rooms.find(r => r.id === roomId));
+
         if (!discussion) { return undefined; }
 
         return discussion.rooms.find(r => r.id === roomId);
