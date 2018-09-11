@@ -1,4 +1,5 @@
 import { Discussion } from '../models/discussion';
+import { Room } from '../models/room';
 
 export class DiscussionsProvider {
     private DUMMY_DISCUSSIONS: Discussion[] = [
@@ -70,5 +71,12 @@ export class DiscussionsProvider {
 
     public getDiscussions(): Promise<Discussion[]> {
         return Promise.resolve(this.DUMMY_DISCUSSIONS);
+    }
+
+    public async getRoom(roomId: string): Promise<Room | undefined> {
+        const discussion = await this.getDiscussionForRoom(roomId);
+        if (!discussion) { return undefined; }
+
+        return discussion.rooms.find(r => r.id === roomId);
     }
 }

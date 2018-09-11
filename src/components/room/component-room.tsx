@@ -3,6 +3,8 @@ import * as Video from 'twilio-video';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
 import './component-room.css';
+import { DiscussionsProvider } from '../../providers/provider-discussions';
+import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
 
 // tslint:disable
 interface RoomProps extends RouteComponentProps<any> {
@@ -11,12 +13,13 @@ interface RoomProps extends RouteComponentProps<any> {
 
 interface RoomState {
     accessToken: string | null;
-    identity: string;
-
     connectedToRoom?: any;
+    identity: string;
 }
 
 class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
+    private discussionsProvider = new DiscussionsProvider();
+    private roomEntryValidationProvider = new RoomEntryValidationProvider(this.discussionsProvider);
     private twilioApi = new TwilioApiProvider();
     private localParticipantMediaRef = React.createRef<HTMLDivElement>();
     private remoteMediaRef = React.createRef<HTMLDivElement>();
@@ -28,6 +31,19 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
             identity: "",
             accessToken: null,
         };
+    }
+
+    public async componentDidMount() {
+        const roomId = this.props.match.params.roomId as string;
+
+        if (!await this.roomEntryValidationProvider.getRoomExists(roomId)) {
+            this.props.history.push('/404');
+            return;
+        }
+
+        if (!await this.roomEntryValidationProvider.canEnterRoom(Date.now(), roomId)) {
+            this.props.history.push(`/rooms/${roomId}/unavailable`);
+        }
     }
 
     public render() {

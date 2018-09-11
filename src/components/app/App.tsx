@@ -25,6 +25,7 @@ import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
 import { RoomComponent } from '../room/component-room';
 import { LoginComponent } from '../login/component-login';
+import RoomUnavailableComponent from '../room-unavailable/component-room-unavailable';
 import './app.css';
 
 const drawerWidth = 240;
@@ -107,7 +108,7 @@ class App extends React.Component<AppProps, AppState> {
     // see https://stackoverflow.com/questions/36677733/why-shouldnt-jsx-props-use-arrow-functions-or-bind
     private _handleNavToHome = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/');
     private _handleNavToDiscussions = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions');
-    private _handleNavToTechDemo = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/123');
+    private _handleNavToTechDemo = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/f6823c6e-4da7-4000-adc7-71e8cc1e25d4');
     private _handleNavToAbout = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about');
 
     constructor(props: AppProps) {
@@ -183,7 +184,8 @@ class App extends React.Component<AppProps, AppState> {
                     <div className={classes.toolbar} />
                     <div className="content-container">
                         <Route path="/discussions" exact component={DiscussionsComponent} />
-                        <Route path="/rooms/:roomId" component={RoomComponent} />
+                        <Route path="/rooms/:roomId" exact component={RoomComponent} />
+                        <Route path="/rooms/:roomId/unavailable" component={RoomUnavailableComponent} />
                         <Route path="/login" component={LoginComponent} />
                         <Route path="/" exact component={LandingComponent} />
                     </div>
