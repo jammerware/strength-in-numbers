@@ -6,6 +6,7 @@ import { DiscussionsProvider } from '../../providers/provider-discussions';
 import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
 import { Room } from '../../models/room';
 import HelpWithMisconduct from '../help-with-misconduct/component-help-with-misconduct';
+import RoomChat from '../room-chat/room-chat';
 
 import './component-room.css';
 
@@ -54,6 +55,11 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     public render() {
         if (!this.state.room) { return null; }
 
+        let roomChatWidget = null;
+        if (this.state.room && this.state.identity) {
+            roomChatWidget = (<RoomChat roomId={this.state.room.id} userId={this.state.identity} />);
+        }
+
         let tokenBlock = <span>No token yet.</span>
         if (this.state.accessToken) {
             tokenBlock = <span>{this.state.accessToken}</span>;
@@ -75,6 +81,8 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                 <input type="text" autoFocus value={this.state.identity} onChange={this.handleNameChange} />
                 <button onClick={this.handleConnect}>Connect</button>
                 <button onClick={this.handleDisconnect}>Disconnect</button>
+
+                {roomChatWidget}
 
                 <div className="help-with-misconduct">
                     <HelpWithMisconduct room={this.state.room} />
