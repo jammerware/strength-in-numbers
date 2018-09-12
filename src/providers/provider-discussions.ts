@@ -62,7 +62,7 @@ export class DiscussionsProvider {
                     id: "f6823c6e-4da7-4000-adc7-71e8cc1e25d4",
                     name: "Matt Smith's group",
                     participants: [],
-                    startTime: Date.UTC(2018, 8, 12, 19),
+                    startTime: Date.UTC(2018, 8, 12, 22),
                     endTime: Date.UTC(2019, 0, 30, 13),
                 },
             ]
