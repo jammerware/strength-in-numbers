@@ -59,7 +59,7 @@ export class RoomRecommendationProvider {
 
     public getDiversityImpact(user: User, room: Room, trait: Trait) {
         const participantsWithProspectiveUser = room.participants.concat(user);
-        const currentRoomDiversity = this.getDiversity(room.participants, trait);
+        const currentRoomDiversity = this.getDiversity(room.participants, trait) / Math.log(room.participants.length);
         const expectedRoomDiversity = this.getDiversity(participantsWithProspectiveUser, trait);
 
         return expectedRoomDiversity - currentRoomDiversity;
