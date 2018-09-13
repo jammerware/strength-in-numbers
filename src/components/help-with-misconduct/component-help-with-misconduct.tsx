@@ -57,11 +57,18 @@ export default class HelpWithMisconductComponent extends React.Component<HelpWit
                             onChange={this.handleMessageChange}
                             placeholder="Describe what went wrong during your discussion"
                             rows="4"
-                            style={{ marginTop: '2rem' }} />
+                            style={{ marginTop: '2rem' }}
+                            value={this.state.messageText} />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.handleDialogClose}>Cancel</Button>
-                        <Button onClick={this.handleSubmit} color="primary" variant="contained">Submit</Button>
+                        <Button
+                            color="primary"
+                            disabled={!this.state.messageText}
+                            onClick={this.handleSubmit}
+                            variant="contained">
+                            Submit
+                        </Button>
                     </DialogActions>
                 </Dialog>
                 <AppToastNotification
@@ -97,6 +104,6 @@ export default class HelpWithMisconductComponent extends React.Component<HelpWit
             type: AppEmailNotificationType.REPORT_MISCONDUCT
         });
 
-        this.setState({ isDialogOpen: false, isNotificationShown: true });
+        this.setState({ isDialogOpen: false, isNotificationShown: true, messageText: '' });
     }
 }

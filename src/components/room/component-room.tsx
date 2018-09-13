@@ -55,6 +55,11 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     public render() {
         if (!this.state.room) { return null; }
 
+        let localMediaStyle: React.CSSProperties = { display: "block" };
+        if (!this.state.connectedToRoom) {
+            localMediaStyle = { display: "none" };
+        }
+
         let roomChatWidget = null;
         if (this.state.room && this.state.identity) {
             roomChatWidget = (<RoomChat roomId={this.state.room.id} userId={this.state.identity} />);
@@ -73,7 +78,8 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                 </p>
 
                 <h2>You</h2>
-                <div ref={this.localParticipantMediaRef} />
+
+                <div ref={this.localParticipantMediaRef} style={localMediaStyle} />
 
                 <h2>Other people</h2>
                 <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
@@ -110,8 +116,9 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         const token = await this.twilioApi.getToken(this.state.identity, roomId);
         this.setState({ accessToken: token });
 
+        // TODO: abstract to service
         Video
-            .connect(this.state.accessToken, { name: roomId })
+            .connect(this.state.accessToken, { name: roomId, dominantSpeaker: true })
             .then((room: any) => {
                 this.setState({ connectedToRoom: room });
                 this.attachParticipantTracks(room.localParticipant, this.localParticipantMediaRef);
@@ -120,6 +127,10 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                 room.participants.forEach((participant: any) => {
                     console.log('Already in room', participant.identity);
                     this.attachParticipantTracks(participant, this.remoteMediaRef);
+                });
+
+                room.on('dominantSpeakerChanged', (event: any) => {
+                    console.log('dominant speaker', event);
                 });
 
                 // handle room events
@@ -138,6 +149,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     private handleDisconnect = () => {
         if (this.state.connectedToRoom) {
             this.state.connectedToRoom.disconnect();
+            this.setState({ connectedToRoom: null });
         }
     }
 
