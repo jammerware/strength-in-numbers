@@ -1,7 +1,14 @@
 import * as React from 'react';
 import { Client } from 'twilio-chat';
 import { Channel } from 'twilio-chat/lib/channel'
+import { Message } from 'twilio-chat/lib/message';
 import { createStyles, Theme } from '@material-ui/core/styles';
+import Avatar from '@material-ui/core/Avatar';
+import ImageIcon from '@material-ui/icons/Image';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
+
 import TextField from '@material-ui/core/TextField'
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
 import { Button, withStyles } from '@material-ui/core';
@@ -15,6 +22,7 @@ interface RoomChatProps {
 
 interface RoomChatState {
     messageText: string;
+    messageList: Message[];
 }
 
 const styles = (theme: Theme) => createStyles({
@@ -23,7 +31,7 @@ const styles = (theme: Theme) => createStyles({
     },
     messageLog: {
         border: `solid 1px ${theme.palette.primary.main}`,
-        boxShadow: `2px 2px 2px 2px #888888`,
+        boxShadow: `0 0 10px #888888`,
         height: theme.spacing.unit * 40,
         marginBottom: theme.spacing.unit * 2,
     },
@@ -41,7 +49,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
     constructor(props: RoomChatProps) {
         super(props);
 
-        this.state = { messageText: '' };
+        this.state = { messageText: '', messageList: [] };
     }
 
     public async componentWillMount() {
@@ -84,8 +92,6 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         if (this._twilioChatClient && this._twilioChatClient.connectionState !== "disconnected") {
             await this._twilioChatClient.shutdown();
         }
-
-        console.log('done');
     }
 
     public render() {
@@ -94,7 +100,15 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         return (
             <div className="component-room-chat">
                 <div className={classes.messageLog}>
-                </div>
+                    <List>
+                        <ListItem>
+                            <Avatar>
+                                <ImageIcon />
+                            </Avatar>
+                            <ListItemText primary="Hi" secondary="Hi!"></ListItemText>
+                        </ListItem>
+                    </List>
+                </div >
                 <div className={classes.messageControls}>
                     <TextField
                         className={classes.messageText}
@@ -118,19 +132,26 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         this.setState({ messageText: event.target.value });
     }
 
-    private handleSendButtonClick = () => {
+    private handleSendButtonClick = async () => {
         const message = this.state.messageText;
 
         // TODO: abstract into service
-        console.log('Would send message', message);
-        this._roomChannel.sendMessage(message);
+        await this._roomChannel.sendMessage(message);
+        console.log('message sent', message);
         this.setState({ messageText: '' });
     }
 
     private wireUpChannelEvents(channel: Channel) {
-        channel.on('message', ((message: string) => {
-            console.log('message is', message);
-        }));
+        channel.on('messageAdded', this.onMessageAdded.bind(this));
+    }
+
+    private onMessageAdded(message: Message) {
+        console.log('message object', message);
+        const currentStateMessages = this.state.messageList || [];
+        currentStateMessages.push(message);
+        this.setState({ messageList: currentStateMessages });
+
+
     }
 }
 
