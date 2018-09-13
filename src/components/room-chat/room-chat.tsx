@@ -34,6 +34,7 @@ const styles = (theme: Theme) => createStyles({
         boxShadow: `0 0 10px #888888`,
         height: theme.spacing.unit * 40,
         marginBottom: theme.spacing.unit * 2,
+        overflowY: "auto",
     },
     messageText: {
         flexGrow: 1,
@@ -96,25 +97,30 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 
     public render() {
         const { classes } = this.props;
-
+        
         return (
             <div className="component-room-chat">
                 <div className={classes.messageLog}>
                     <List>
-                        <ListItem>
-                            <Avatar>
-                                <ImageIcon />
-                            </Avatar>
-                            <ListItemText primary="Hi" secondary="Hi!"></ListItemText>
-                        </ListItem>
+                        {this.state.messageList.map(message => {
+                            return (
+                                <ListItem key={message.sid}>
+                                    <Avatar>
+                                        <ImageIcon />
+                                    </Avatar>
+                                    <ListItemText primary={message.body} secondary={message.timestamp.toTimeString()}></ListItemText>
+                                </ListItem>
+                            );
+                        })}
                     </List>
-                </div >
+                </div>
                 <div className={classes.messageControls}>
                     <TextField
                         className={classes.messageText}
                         fullWidth
                         onChange={this.handleTextChange}
-                        placeholder="What do you want to say?" />
+                        placeholder="What do you want to say?"
+                        value={this.state.messageText} />
                     <Button
                         className={classes.sendButton}
                         color="primary"
@@ -137,7 +143,6 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 
         // TODO: abstract into service
         await this._roomChannel.sendMessage(message);
-        console.log('message sent', message);
         this.setState({ messageText: '' });
     }
 
@@ -146,12 +151,8 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
     }
 
     private onMessageAdded(message: Message) {
-        console.log('message object', message);
-        const currentStateMessages = this.state.messageList || [];
-        currentStateMessages.push(message);
-        this.setState({ messageList: currentStateMessages });
-
-
+        const { messageList } = this.state;
+        messageList.push(message);
     }
 }
 
