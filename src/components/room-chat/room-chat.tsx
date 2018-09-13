@@ -97,7 +97,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 
     public render() {
         const { classes } = this.props;
-        
+
         return (
             <div className="component-room-chat">
                 <div className={classes.messageLog}>
@@ -153,6 +153,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
     private onMessageAdded(message: Message) {
         const { messageList } = this.state;
         messageList.push(message);
+        this.forceUpdate();
     }
 }
 
