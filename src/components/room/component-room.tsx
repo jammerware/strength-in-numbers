@@ -59,6 +59,10 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     public render() {
         if (!this.state.room) { return null; }
 
+        console.log('is connected', this.state.isConnected);
+        console.log('room', this.state.room.id);
+        console.log('identity', this.state.identity);
+
         let localMediaStyle: React.CSSProperties = { display: "block" };
         if (!this.state.connectedToRoom) {
             localMediaStyle = { display: "none" };
@@ -113,10 +117,8 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
 
     private handleConnect = async (participantName: string) => {
         const roomId = this.props.match.params.roomId;
-        const token = await this.twilioApi.getToken(participantName, roomId);
+        const token = await this.twilioApi.getToken(this.state.identity, roomId);
         this.setState({ accessToken: token });
-
-        console.log('name', this.state.identity);
 
         Video
             .connect(this.state.accessToken, { name: roomId, dominantSpeaker: true })

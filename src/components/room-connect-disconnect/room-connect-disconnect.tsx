@@ -36,11 +36,18 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
                             placeholder="What should people call you?" />
                     </Grid>
                     <Grid item xs={2}>
-                        <Button variant="raised" color="primary">{this.state.isConnected ? 'Disconnect' : 'Connect'}</Button>
+                        <Button
+                            color="primary"
+                            onClick={this.handleClick}
+                            variant="raised">{this.state.isConnected ? 'Disconnect' : 'Connect'}</Button>
                     </Grid>
                 </Grid>
             </div>
         );
+    }
+
+    private handleClick = () => {
+        this.props.onConnect(this.state.name);
     }
 
     private handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
