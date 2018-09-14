@@ -1,12 +1,14 @@
 import * as React from 'react';
 import * as Video from 'twilio-video';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
 import { DiscussionsProvider } from '../../providers/provider-discussions';
 import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
 import { Room } from '../../models/room';
 import HelpWithMisconduct from '../help-with-misconduct/component-help-with-misconduct';
 import RoomChat from '../room-chat/room-chat';
+import RoomConnectDisconnect from '../room-connect-disconnect/room-connect-disconnect';
 
 import './component-room.css';
 
@@ -16,6 +18,7 @@ interface RoomState {
     accessToken: string | null;
     connectedToRoom?: any;
     identity: string;
+    isConnected: boolean;
     room?: Room;
 }
 
@@ -32,6 +35,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
 
         this.state = {
             identity: "",
+            isConnected: false,
             accessToken: null,
         };
     }
@@ -61,42 +65,38 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         }
 
         let roomChatWidget = null;
-        if (this.state.room && this.state.identity) {
+        if (this.state.isConnected && this.state.room.id && this.state.identity) {
             roomChatWidget = (<RoomChat roomId={this.state.room.id} userId={this.state.identity} />);
-        }
-
-        let tokenBlock = <span>No token yet.</span>
-        if (this.state.accessToken) {
-            tokenBlock = <span>{this.state.accessToken}</span>;
         }
 
         return (
             <div className="room-component">
-                <p>
-                    <strong>Token: </strong>
-                    {tokenBlock}
-                </p>
+                <Grid container spacing={16}>
+                    <Grid item xs={8}>
+                        <div>
+                            <h2>You</h2>
+                            <div ref={this.localParticipantMediaRef} style={localMediaStyle} />
 
-                <h2>You</h2>
-
-                <div ref={this.localParticipantMediaRef} style={localMediaStyle} />
-
-                <h2>Other people</h2>
-                <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
-
-                <input type="text" autoFocus value={this.state.identity} onChange={this.handleNameChange} />
-                <button onClick={this.handleConnect}>Connect</button>
-                <button onClick={this.handleDisconnect}>Disconnect</button>
-
-                {roomChatWidget}
-
-                <div className="help-with-misconduct">
-                    <HelpWithMisconduct room={this.state.room} />
-                </div>
+                            <h2>Other people</h2>
+                            <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
+                        </div>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <RoomConnectDisconnect
+                            onConnect={this.handleConnect}
+                            onDisconnect={this.handleDisconnect}
+                            onNameChange={this.handleNameChange} />
+                        {roomChatWidget}
+                        <div>
+                            <HelpWithMisconduct room={this.state.room} />
+                        </div>
+                    </Grid>
+                </Grid>
             </div>
         );
     }
 
+    // TODO: abstract to service - there's way too much twilio stuff in here
     private attachParticipantTracks(participant: any, container: React.RefObject<HTMLDivElement>) {
         console.log(`Connecting tracks for`, participant);
         const tracks = Array.from(participant.tracks.values());
@@ -111,12 +111,13 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         });
     }
 
-    private handleConnect = async () => {
+    private handleConnect = async (participantName: string) => {
         const roomId = this.props.match.params.roomId;
-        const token = await this.twilioApi.getToken(this.state.identity, roomId);
+        const token = await this.twilioApi.getToken(participantName, roomId);
         this.setState({ accessToken: token });
 
-        // TODO: abstract to service
+        console.log('name', this.state.identity);
+
         Video
             .connect(this.state.accessToken, { name: roomId, dominantSpeaker: true })
             .then((room: any) => {
@@ -144,9 +145,11 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                     this.attachTracks([track], this.remoteMediaRef);
                 });
             });
+
+        this.setState({ isConnected: true });
     };
 
-    private handleDisconnect = () => {
+    private handleDisconnect = async () => {
         if (this.state.connectedToRoom) {
             this.state.connectedToRoom.disconnect();
             this.setState({ connectedToRoom: null });

@@ -44,6 +44,7 @@ const styles = (theme: Theme) => createStyles({
 
 // tslint:disable
 class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
+    private _messageTextFieldRef = React.createRef<HTMLInputElement>();
     private _twilioChatClient: Client;
     private _roomChannel: Channel;
 
@@ -53,10 +54,14 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         this.state = { messageText: '', messageList: [] };
     }
 
-    public async componentWillMount() {
+    public async componentDidMount() {
         const twilioApi = new TwilioApiProvider();
         this._twilioChatClient = await twilioApi.getChatClient(this.props.userId, this.props.roomId);
 
+        // focus on mount - this may be bold
+        this._messageTextFieldRef.current!.focus();
+
+        // create or get the existing room
         try {
             this._roomChannel = await this._twilioChatClient.getChannelByUniqueName(this.props.roomId);
         }
@@ -71,6 +76,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
             throw new Error(`Couldn't resolve channel for room ${this.props.roomId}`)
         }
 
+        // connect the participant to the room if need be
         const channelMembers = await this._roomChannel.getMembers();
         if (!channelMembers.find(m => m.identity === this.props.userId)) {
             await this._roomChannel.join();
@@ -80,12 +86,11 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
             console.log('this person is already in the channel, which is nice');
         }
 
+        // wire up the events we're going to listen to on the channel
         this.wireUpChannelEvents(this._roomChannel);
     }
 
     public async componentWillUnmount() {
-        console.log('unmounting and signing out');
-
         if (this._roomChannel) {
             await this._roomChannel.leave();
         }
@@ -120,6 +125,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
                         fullWidth
                         onChange={this.handleTextChange}
                         placeholder="What do you want to say?"
+                        inputRef={this._messageTextFieldRef}
                         value={this.state.messageText} />
                     <Button
                         className={classes.sendButton}
@@ -154,6 +160,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         const { messageList } = this.state;
         messageList.push(message);
         this.forceUpdate();
+        this._messageTextFieldRef.current!.focus();
     }
 }
 
