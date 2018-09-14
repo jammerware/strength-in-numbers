@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 
 interface RoomConnectDisconnectProps {
-    onConnect: (participantName: string) => Promise<void>;
+    onConnect: () => Promise<void>;
     onDisconnect: () => Promise<void>;
     onNameChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -31,13 +31,15 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
                 <Grid container spacing={8}>
                     <Grid item xs={10}>
                         <TextField
+                            disabled={this.state.isConnected}
                             fullWidth
                             onChange={this.handleNameChange}
                             placeholder="What should people call you?" />
                     </Grid>
                     <Grid item xs={2}>
                         <Button
-                            color="primary"
+                            color={this.state.isConnected ? "secondary" : "primary"}
+                            disabled={!this.state.name}
                             onClick={this.handleClick}
                             variant="raised">{this.state.isConnected ? 'Disconnect' : 'Connect'}</Button>
                     </Grid>
@@ -46,11 +48,19 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
         );
     }
 
-    private handleClick = () => {
-        this.props.onConnect(this.state.name);
+    private handleClick = async () => {
+        if (this.state.isConnected) {
+            this.setState({ isConnected: false });
+            await this.props.onDisconnect();
+        }
+        else {
+            this.setState({ isConnected: true });
+            await this.props.onConnect();
+        }
     }
 
     private handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.props.onNameChange(event);
+        this.setState({ name: event.target.value });
     }
 }

@@ -35,11 +35,15 @@ const styles = (theme: Theme) => createStyles({
         height: theme.spacing.unit * 40,
         marginBottom: theme.spacing.unit * 2,
         overflowY: "auto",
+        width: "100%"
     },
     messageText: {
         flexGrow: 1,
         marginRight: theme.spacing.unit * 2,
     },
+    root: {
+        width: '100%',
+    }
 });
 
 // tslint:disable
@@ -80,10 +84,6 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         const channelMembers = await this._roomChannel.getMembers();
         if (!channelMembers.find(m => m.identity === this.props.userId)) {
             await this._roomChannel.join();
-            console.log('joined channel')
-        }
-        else {
-            console.log('this person is already in the channel, which is nice');
         }
 
         // wire up the events we're going to listen to on the channel
@@ -104,7 +104,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
         const { classes } = this.props;
 
         return (
-            <div className="component-room-chat">
+            <div className={classes.root}>
                 <div className={classes.messageLog}>
                     <List>
                         {this.state.messageList.map(message => {

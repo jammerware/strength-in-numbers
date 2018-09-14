@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as Video from 'twilio-video';
 import { withRouter, RouteComponentProps } from 'react-router-dom';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
 import { DiscussionsProvider } from '../../providers/provider-discussions';
 import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
@@ -59,10 +64,6 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     public render() {
         if (!this.state.room) { return null; }
 
-        console.log('is connected', this.state.isConnected);
-        console.log('room', this.state.room.id);
-        console.log('identity', this.state.identity);
-
         let localMediaStyle: React.CSSProperties = { display: "block" };
         if (!this.state.connectedToRoom) {
             localMediaStyle = { display: "none" };
@@ -71,6 +72,9 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         let roomChatWidget = null;
         if (this.state.isConnected && this.state.room.id && this.state.identity) {
             roomChatWidget = (<RoomChat roomId={this.state.room.id} userId={this.state.identity} />);
+        }
+        else {
+            roomChatWidget = <Typography variant="body1">Enter your name and connect to join the conversation!</Typography>
         }
 
         return (
@@ -86,11 +90,36 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                         </div>
                     </Grid>
                     <Grid item xs={4}>
-                        <RoomConnectDisconnect
-                            onConnect={this.handleConnect}
-                            onDisconnect={this.handleDisconnect}
-                            onNameChange={this.handleNameChange} />
-                        {roomChatWidget}
+                        <ExpansionPanel defaultExpanded>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="button" color="primary">Your camera</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <RoomConnectDisconnect
+                                    onConnect={this.handleConnect}
+                                    onDisconnect={this.handleDisconnect}
+                                    onNameChange={this.handleNameChange} />
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        <ExpansionPanel defaultExpanded>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="button" color="primary">Connect</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <RoomConnectDisconnect
+                                    onConnect={this.handleConnect}
+                                    onDisconnect={this.handleDisconnect}
+                                    onNameChange={this.handleNameChange} />
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        <ExpansionPanel defaultExpanded>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="button" color="primary">Chat</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                {roomChatWidget}
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
                         <div>
                             <HelpWithMisconduct room={this.state.room} />
                         </div>
@@ -115,7 +144,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         });
     }
 
-    private handleConnect = async (participantName: string) => {
+    private handleConnect = async () => {
         const roomId = this.props.match.params.roomId;
         const token = await this.twilioApi.getToken(this.state.identity, roomId);
         this.setState({ accessToken: token });
