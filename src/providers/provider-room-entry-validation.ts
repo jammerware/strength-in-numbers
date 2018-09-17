@@ -10,8 +10,10 @@ export class RoomEntryValidationProvider {
         const room = await this.discussionsProvider.getRoom(roomId);
         if (!room) { return false; }
 
-        const lowerDateBound = new Date(room.startTime).valueOf() - (this.MS_PER_MINUTE * 60 * 24 * 2);
-        const upperDateBound = new Date(room.startTime).valueOf() + (this.MS_PER_MINUTE * 60 * 24 * 2);
+        // eventually this'll be 15 minutes before the start time and an hour after start time
+        // but we're widening for development
+        const lowerDateBound = new Date(room.startTime).valueOf() - (this.MS_PER_MINUTE * 60 * 24 * 365);
+        const upperDateBound = new Date(room.startTime).valueOf() + (this.MS_PER_MINUTE * 60 * 24 * 365);
 
         if (currentDate < lowerDateBound || currentDate > upperDateBound) {
             return false;

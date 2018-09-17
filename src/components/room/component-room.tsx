@@ -10,8 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import { TwilioApiProvider } from '../../providers/provider-twilio-api';
 import { DiscussionsProvider } from '../../providers/provider-discussions';
 import { RoomEntryValidationProvider } from '../../providers/provider-room-entry-validation';
+import { Discussion } from '../../models/discussion';
 import { Room } from '../../models/room';
+import CameraPreview from '../camera-preview/camera-preview';
 import HelpWithMisconduct from '../help-with-misconduct/component-help-with-misconduct';
+import ParticipantCard from '../participant-card/participant-card';
 import RoomChat from '../room-chat/room-chat';
 import RoomConnectDisconnect from '../room-connect-disconnect/room-connect-disconnect';
 
@@ -22,18 +25,19 @@ interface RoomProps extends RouteComponentProps<any> { }
 interface RoomState {
     accessToken: string | null;
     connectedToRoom?: any;
+    discussion?: Discussion;
     identity: string;
     isConnected: boolean;
+    otherParticipants: any[];
     room?: Room;
 }
 
 // tslint:disable
 class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
-    private discussionsProvider = new DiscussionsProvider();
-    private roomEntryValidationProvider = new RoomEntryValidationProvider(this.discussionsProvider);
-    private twilioApi = new TwilioApiProvider();
-    private localParticipantMediaRef = React.createRef<HTMLDivElement>();
-    private remoteMediaRef = React.createRef<HTMLDivElement>();
+    private _discussionsProvider = new DiscussionsProvider();
+    private _remoteMediaRef = React.createRef<HTMLDivElement>();
+    private _roomEntryValidationProvider = new RoomEntryValidationProvider(this._discussionsProvider);
+    private _twilioApi = new TwilioApiProvider();
 
     constructor(props: any) {
         super(props);
@@ -42,32 +46,30 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
             identity: "",
             isConnected: false,
             accessToken: null,
+            otherParticipants: [],
         };
     }
 
     public async componentDidMount() {
         const roomId = this.props.match.params.roomId as string;
 
-        if (!await this.roomEntryValidationProvider.getRoomExists(roomId)) {
+        if (!await this._roomEntryValidationProvider.getRoomExists(roomId)) {
             this.props.history.push('/404');
             return;
         }
 
-        if (!await this.roomEntryValidationProvider.canEnterRoom(Date.now(), roomId)) {
+        if (!await this._roomEntryValidationProvider.canEnterRoom(Date.now(), roomId)) {
             this.props.history.push(`/rooms/${roomId}/unavailable`);
             return;
         }
 
-        this.setState({ room: await this.discussionsProvider.getRoom(roomId) });
+        const discussion = await this._discussionsProvider.getDiscussionForRoom(roomId);
+        const room = await this._discussionsProvider.getRoom(roomId);
+        this.setState({ discussion, room });
     }
 
     public render() {
-        if (!this.state.room) { return null; }
-
-        let localMediaStyle: React.CSSProperties = { display: "block" };
-        if (!this.state.connectedToRoom) {
-            localMediaStyle = { display: "none" };
-        }
+        if (!this.state.room || !this.state.discussion) { return null; }
 
         let roomChatWidget = null;
         if (this.state.isConnected && this.state.room.id && this.state.identity) {
@@ -81,26 +83,24 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
             <div className="room-component">
                 <Grid container spacing={16}>
                     <Grid item xs={8}>
-                        <div>
-                            <h2>You</h2>
-                            <div ref={this.localParticipantMediaRef} style={localMediaStyle} />
-
-                            <h2>Other people</h2>
-                            <div className="remote-participants-wrapper" ref={this.remoteMediaRef} />
+                        <div className="layout">
+                            <div className="title-stuff">
+                                <Typography variant="display2">{this.state.discussion.title}</Typography>
+                                <Typography variant="subheading">{this.state.discussion.subtitle}</Typography>
+                            </div>
+                            <div className="dominant-speaker-container">
+                                
+                            </div>
+                            <div className="remote-participants-drawer">
+                                <h2>Other people</h2>
+                                {this.state.otherParticipants.map(p => {
+                                    return (<ParticipantCard key={p.identity} />);
+                                })}
+                                <div className="remote-participants-wrapper" ref={this._remoteMediaRef} />
+                            </div>
                         </div>
                     </Grid>
                     <Grid item xs={4}>
-                        <ExpansionPanel defaultExpanded>
-                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                                <Typography variant="button" color="primary">Your camera</Typography>
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails>
-                                <RoomConnectDisconnect
-                                    onConnect={this.handleConnect}
-                                    onDisconnect={this.handleDisconnect}
-                                    onNameChange={this.handleNameChange} />
-                            </ExpansionPanelDetails>
-                        </ExpansionPanel>
                         <ExpansionPanel defaultExpanded>
                             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="button" color="primary">Connect</Typography>
@@ -110,6 +110,14 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                                     onConnect={this.handleConnect}
                                     onDisconnect={this.handleDisconnect}
                                     onNameChange={this.handleNameChange} />
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        <ExpansionPanel>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="button" color="primary">Your camera</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <CameraPreview />
                             </ExpansionPanelDetails>
                         </ExpansionPanel>
                         <ExpansionPanel defaultExpanded>
@@ -144,21 +152,26 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         });
     }
 
+    private addParticipant(participant: any) {
+        console.log('adding participant', participant.identity);
+        this.attachParticipantTracks(participant, this._remoteMediaRef);
+        this.state.otherParticipants.push(participant);
+        this.forceUpdate();
+    }
+
     private handleConnect = async () => {
         const roomId = this.props.match.params.roomId;
-        const token = await this.twilioApi.getToken(this.state.identity, roomId);
+        const token = await this._twilioApi.getToken(this.state.identity, roomId);
         this.setState({ accessToken: token });
 
         Video
             .connect(this.state.accessToken, { name: roomId, dominantSpeaker: true })
             .then((room: any) => {
                 this.setState({ connectedToRoom: room });
-                this.attachParticipantTracks(room.localParticipant, this.localParticipantMediaRef);
-
+               
                 // attach tracks for all existing participants
                 room.participants.forEach((participant: any) => {
-                    console.log('Already in room', participant.identity);
-                    this.attachParticipantTracks(participant, this.remoteMediaRef);
+                    this.addParticipant(participant);
                 });
 
                 room.on('dominantSpeakerChanged', (event: any) => {
@@ -168,12 +181,11 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                 // handle room events
                 room.on('participantConnected', (participant: any) => {
                     console.log('Joined', participant);
-                    this.attachParticipantTracks(participant, this.remoteMediaRef);
+                    this.addParticipant(participant);
                 });
 
                 room.on('trackAdded', (track: any, participant: any) => {
-                    console.log(participant.identity + " added track: " + track.kind);
-                    this.attachTracks([track], this.remoteMediaRef);
+                    this.attachTracks([track], this._remoteMediaRef);
                 });
             });
 
@@ -193,4 +205,4 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
 }
 
 const RoomComponent = withRouter(RoomComponentWithoutRouter);
-export { RoomComponent }
+export { RoomComponent };

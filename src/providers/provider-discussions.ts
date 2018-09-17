@@ -69,6 +69,11 @@ export class DiscussionsProvider {
         },
     ];
 
+    public async getDiscussionForRoom(roomId: string): Promise<Discussion | undefined> {
+        const discussions = await this.getDiscussions();
+        return discussions.find(d => !!d.rooms.find(r => r.id === roomId));
+    }
+
     public getDiscussions(): Promise<Discussion[]> {
         return Promise.resolve(this.DUMMY_DISCUSSIONS);
     }
