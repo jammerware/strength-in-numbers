@@ -1,0 +1,12 @@
+.participant-card-component p {
+    text-align: center;
+}
+
+.participant-card-component .video-container {
+    background-color: #eee;
+    width: 160px;
+}
+
+.participant-card-component .video-container video {
+    max-width: 100%;
+}

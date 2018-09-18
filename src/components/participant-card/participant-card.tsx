@@ -1,22 +1,37 @@
 import * as React from 'react';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 
-export default class ParticipantCard extends React.Component<{}, {}> {
+import { TwilioVideoDomProvider } from '../../providers/provider-twilio-video-dom';
+import './participant-card.css';
+
+interface ParticipantCardProps {
+    participant: any;
+    room: any;
+}
+
+// tslint:disable
+export default class ParticipantCard extends React.Component<ParticipantCardProps, {}> {
+    private _twilioVideoDomProvider = new TwilioVideoDomProvider();
+    private _videoContainerRef = React.createRef<HTMLDivElement>();
+
+    constructor(props: ParticipantCardProps) {
+        super(props);
+    }
+
+    public componentDidMount() {
+        this.props.participant.on('trackStarted', (track: any) => {
+            this._twilioVideoDomProvider.attachTrack(track, this._videoContainerRef.current);
+        });
+    }
+
     public render() {
+        if (!this.props.participant) { return null; }
+
         return (
-            <Card>
-                <CardContent>
-                <Typography gutterBottom variant="headline" component="h2">
-                    Lizard
-                </Typography>
-                <Typography component="p">
-                    Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-                    across all continents except Antarctica
-                </Typography>
-                </CardContent>
-            </Card>
+            <div className="participant-card-component">
+                <div className="video-container" ref={this._videoContainerRef} />
+                <Typography variant="body1">{this.props.participant.identity}</Typography>
+            </div>
         );
     }
 }

@@ -35,7 +35,6 @@ interface RoomState {
 // tslint:disable
 class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     private _discussionsProvider = new DiscussionsProvider();
-    private _remoteMediaRef = React.createRef<HTMLDivElement>();
     private _roomEntryValidationProvider = new RoomEntryValidationProvider(this._discussionsProvider);
     private _twilioApi = new TwilioApiProvider();
 
@@ -71,12 +70,21 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     public render() {
         if (!this.state.room || !this.state.discussion) { return null; }
 
+        // render chat widget if it's time
         let roomChatWidget = null;
         if (this.state.isConnected && this.state.room.id && this.state.identity) {
             roomChatWidget = (<RoomChat roomId={this.state.room.id} userId={this.state.identity} />);
         }
         else {
             roomChatWidget = <Typography variant="body1">Enter your name and connect to join the conversation!</Typography>
+        }
+
+        // render other participants' cams if we're connected
+        let participantCams = null;
+        if (this.state.connectedToRoom) {
+            participantCams = this.state.otherParticipants.map(p => {
+                return (<ParticipantCard key={p.identity} participant={p} room={this.state.connectedToRoom} />);
+            });
         }
 
         return (
@@ -91,12 +99,8 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                             <div className="dominant-speaker-container">
                                 
                             </div>
-                            <div className="remote-participants-drawer">
-                                <h2>Other people</h2>
-                                {this.state.otherParticipants.map(p => {
-                                    return (<ParticipantCard key={p.identity} />);
-                                })}
-                                <div className="remote-participants-wrapper" ref={this._remoteMediaRef} />
+                            <div className="other-participants-container">
+                                {participantCams}
                             </div>
                         </div>
                     </Grid>
@@ -137,24 +141,8 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
         );
     }
 
-    // TODO: abstract to service - there's way too much twilio stuff in here
-    private attachParticipantTracks(participant: any, container: React.RefObject<HTMLDivElement>) {
-        console.log(`Connecting tracks for`, participant);
-        const tracks = Array.from(participant.tracks.values());
-        this.attachTracks(tracks, container);
-    }
-
-    private attachTracks(tracks: any[], container: React.RefObject<HTMLDivElement>) {
-        tracks.forEach((track: any, key: any) => {
-            if (container.current) {
-                container.current.appendChild(track.attach());
-            }
-        });
-    }
-
     private addParticipant(participant: any) {
         console.log('adding participant', participant.identity);
-        this.attachParticipantTracks(participant, this._remoteMediaRef);
         this.state.otherParticipants.push(participant);
         this.forceUpdate();
     }
@@ -169,23 +157,19 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
             .then((room: any) => {
                 this.setState({ connectedToRoom: room });
                
-                // attach tracks for all existing participants
+                // add participants already present in the room when the user joins
                 room.participants.forEach((participant: any) => {
                     this.addParticipant(participant);
                 });
 
-                room.on('dominantSpeakerChanged', (event: any) => {
-                    console.log('dominant speaker', event);
-                });
-
-                // handle room events
+                // add a participant when they join the room
                 room.on('participantConnected', (participant: any) => {
                     console.log('Joined', participant);
                     this.addParticipant(participant);
                 });
 
-                room.on('trackAdded', (track: any, participant: any) => {
-                    this.attachTracks([track], this._remoteMediaRef);
+                room.on('dominantSpeakerChanged', (event: any) => {
+                    // todo: something
                 });
             });
 

@@ -113,7 +113,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
                                     <Avatar>
                                         <ImageIcon />
                                     </Avatar>
-                                    <ListItemText primary={message.body} secondary={message.timestamp.toTimeString()}></ListItemText>
+                                    <ListItemText primary={message.body} secondary={`${message.author} @ ${message.timestamp.toLocaleTimeString()}`}></ListItemText>
                                 </ListItem>
                             );
                         })}
