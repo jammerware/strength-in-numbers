@@ -8,6 +8,7 @@ export class DiscussionsProvider {
             title: "Staying sane in your first week at InsuraCare",
             subtitle: "A guide to the ins and outs of the most medium insurance company in Incrediville",
             agenda: `Bacon ipsum dolor amet sausage turducken cow buffalo id, shoulder est pork belly adipisicing salami ball tip. Aute ut ad ullamco ut. Shankle eiusmod veniam aliqua hamburger. Pork belly boudin sunt ullamco hamburger non, aliquip swine jowl ipsum.`,
+            traits: ["gender"],
             rooms: [
                 {
                     id: "425db9e4-7f71-4bb6-8854-08f36381390f",
@@ -36,6 +37,7 @@ export class DiscussionsProvider {
             title: "The ACME Way",
             subtitle: "How to employ a productivity-first approach to helping Wile E. catch that darned road runner once and for all.",
             agenda: `Bacon ipsum dolor amet sausage turducken cow buffalo id, shoulder est pork belly adipisicing salami ball tip. Aute ut ad ullamco ut. Shankle eiusmod veniam aliqua hamburger. Pork belly boudin sunt ullamco hamburger non, aliquip swine jowl ipsum.`,
+            traits: ["gender"],
             rooms: [
                 {
                     id: "e9a768a0-0411-44b3-876f-75a771795304",
@@ -57,6 +59,7 @@ export class DiscussionsProvider {
             title: "Cyberdyne Project Management Seminar",
             subtitle: "How YOU can build the next Skynet!",
             agenda: `Bacon ipsum dolor amet sausage turducken cow buffalo id, shoulder est pork belly adipisicing salami ball tip. Aute ut ad ullamco ut. Shankle eiusmod veniam aliqua hamburger. Pork belly boudin sunt ullamco hamburger non, aliquip swine jowl ipsum.`,
+            traits: ["gender"],
             rooms: [
                 {
                     id: "f6823c6e-4da7-4000-adc7-71e8cc1e25d4",
@@ -72,6 +75,13 @@ export class DiscussionsProvider {
     public async getDiscussionForRoom(roomId: string): Promise<Discussion | undefined> {
         const discussions = await this.getDiscussions();
         return discussions.find(d => !!d.rooms.find(r => r.id === roomId));
+    }
+
+    public async getDiscussion(discussionId: string): Promise<Discussion | undefined> {
+        const discussions = await this.getDiscussions();
+        if (!discussions) { return undefined };
+
+        return Promise.resolve(discussions.find(d => d.id === discussionId));
     }
 
     public getDiscussions(): Promise<Discussion[]> {

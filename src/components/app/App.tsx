@@ -25,6 +25,7 @@ import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
 import { RoomComponent } from '../room/component-room';
 import { LoginComponent } from '../login/component-login';
+import DiscussionComponent from '../discussion/discussion';
 import RoomUnavailableComponent from '../room-unavailable/component-room-unavailable';
 import './app.css';
 
@@ -34,6 +35,7 @@ const styles = (theme: Theme) => createStyles({
     root: {
         flexGrow: 1,
         zIndex: 1,
+        minHeight: '100vh',
         overflow: 'hidden',
         position: 'relative',
         display: 'flex',
@@ -184,6 +186,7 @@ class App extends React.Component<AppProps, AppState> {
                     <div className={classes.toolbar} />
                     <div className="content-container">
                         <Route path="/discussions" exact component={DiscussionsComponent} />
+                        <Route path="/discussions/:discussionId" exact component={DiscussionComponent} />
                         <Route path="/rooms/:roomId" exact component={RoomComponent} />
                         <Route path="/rooms/:roomId/unavailable" component={RoomUnavailableComponent} />
                         <Route path="/login" component={LoginComponent} />

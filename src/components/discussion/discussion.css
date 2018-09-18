@@ -1,0 +1,10 @@
+.discussion-component .agenda {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+.discussion-component .traits-container {
+    background-color: #eee;
+    padding: 1rem;
+    width: 100%;
+}

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { createStyles, Theme, withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -16,7 +17,7 @@ import Slide from '@material-ui/core/Slide';
 import Typography from '@material-ui/core/Typography';
 import { Discussion } from '../../models/discussion';
 
-interface DiscussionCardProps {
+interface DiscussionCardProps extends RouteComponentProps<any, any> {
     classes: any;
     discussion: Discussion;
 }
@@ -60,7 +61,7 @@ class DiscussionCard extends React.Component<DiscussionCardProps, DiscussionCard
         return (
             <div className="component-discussion-card">
                 <Card className={classes.card}>
-                    <CardActionArea>
+                    <CardActionArea onClick={this.handleCardClick}>
                         <CardMedia
                             className={classes.media}
                             image="https://images.pexels.com/photos/1059116/pexels-photo-1059116.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
@@ -109,6 +110,10 @@ class DiscussionCard extends React.Component<DiscussionCardProps, DiscussionCard
         );
     }
 
+    private handleCardClick = () => {
+        this.props.history.push(`/discussions/${this.props.discussion.id}`);
+    }
+
     private handleAgendaDialogClose = () => {
         this.setState({ isAgendaDialogOpen: false });
     }
@@ -118,4 +123,4 @@ class DiscussionCard extends React.Component<DiscussionCardProps, DiscussionCard
     }
 }
 
-export default withStyles(styles)(DiscussionCard);
+export default withRouter(withStyles(styles)(DiscussionCard));

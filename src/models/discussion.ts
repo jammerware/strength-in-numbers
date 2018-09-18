@@ -5,5 +5,6 @@ export class Discussion {
     public title: string;
     public subtitle: string;
     public agenda: string;
+    public traits: string[] = [];
     public rooms: Room[] = [];
 }
