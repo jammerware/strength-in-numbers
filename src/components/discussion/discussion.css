@@ -3,8 +3,21 @@
     margin-top: 1rem;
 }
 
+.discussion-component .selected-list-item {
+    background-color: green !important;
+}
+
+.discussion-component .recommended-room-tile-container {
+    margin-bottom: 1rem;
+}
+
 .discussion-component .traits-container {
     background-color: #eee;
-    padding: 1rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
     width: 100%;
+}
+
+.discussion-component .recommendation-copy {
+    margin-bottom: 1rem;
 }

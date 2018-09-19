@@ -135,9 +135,7 @@ class App extends React.Component<AppProps, AppState> {
                             className={classNames(classes.menuButton, this.state.open && classes.hide)}>
                             <MenuIcon open={!this.state.open} />
                         </IconButton>
-                        <Typography variant="title" color="inherit" noWrap>
-                            Strength in Numbers
-                        </Typography>
+                        <Typography variant="title" color="inherit" noWrap>Strength in Numbers</Typography>
                     </Toolbar>
                 </AppBar>
                 <Drawer
