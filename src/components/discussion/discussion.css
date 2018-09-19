@@ -3,10 +3,6 @@
     margin-top: 1rem;
 }
 
-.discussion-component .selected-list-item {
-    background-color: green !important;
-}
-
 .discussion-component .recommended-room-tile-container {
     margin-bottom: 1rem;
 }

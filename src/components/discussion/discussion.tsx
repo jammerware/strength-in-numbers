@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { FormControl, InputLabel } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import { createStyles, withStyles, Theme } from '@material-ui/core/styles';
@@ -16,13 +18,13 @@ import { RoomRecommendationProvider } from '../../providers/provider-room-recomm
 import './discussion.css';
 
 const styles = (theme: Theme) => createStyles({
+    formControl: {
+        margin: '1rem 0',
+        width: '30%',
+    },
     selectedListItem: {
         backgroundColor: `${theme.palette.primary.main} !important`,
-        color: `${theme.palette.primary.contrastText} !important`,
-        'span': {
-            backgroundColor: `${theme.palette.primary.main} !important`,
-            color: `${theme.palette.primary.contrastText} !important`,
-        }
+        color: `${theme.palette.getContrastText(theme.palette.primary.main)} !important`,
     },
 });
 
@@ -54,30 +56,13 @@ class DiscussionComponent extends React.Component<DiscussionProps, DiscussionSta
     // tslint:disable
     public async componentDidMount() {
         const discussion = await this._discussionsProvider.getDiscussion(this.props.match.params.discussionId);
+
         if (!discussion) {
             this.props.history.push('/404');
         }
         else {
             this.setState({ discussion });
-        }
-
-        // TODO: not this
-        const trait = {
-            name: 'gender',
-            possibleValues: ['male', 'female', 'other'],
-        };
-
-        const currentUser = this._authProvider.getCurrentUser();
-        console.log('current user', currentUser);
-        const roomRecommendations = await this
-            ._roomRecommendationProvider
-            .recommendRooms(
-                discussion!.rooms, 
-                this._authProvider.getCurrentUser()!, trait
-            );
-
-        if (roomRecommendations.length) {
-            this.setState({ recommendedRoom: roomRecommendations[0] });
+            await this.updateRoomRecommendations(discussion);
         }
     }
 
@@ -110,12 +95,22 @@ class DiscussionComponent extends React.Component<DiscussionProps, DiscussionSta
         // build recommended room tile 
         let recommendedRoomTile: JSX.Element | null = null;
         if (recommendedRoom && recommendedRoomStartTime) {
+            const onClickHandler = (event: React.MouseEvent<HTMLElement>) => this.handleClick(recommendedRoom!.id);
+
             recommendedRoomTile = (
                 <div className="recommended-room-tile-container">
                     <Typography variant="display1">Recommended room</Typography>
                     <List>
-                        <ListItem className={this.props.classes.selectedListItem} selected={true}>
-                            <ListItemText primary={recommendedRoom.name} secondary={`${recommendedRoomStartTime.toLocaleDateString()} @ ${recommendedRoomStartTime.toLocaleTimeString()}`} />
+                        <ListItem 
+                            button
+                            className={this.props.classes.selectedListItem} 
+                            onClick={onClickHandler} 
+                            selected={true}>
+                            <ListItemText 
+                                primary={recommendedRoom.name} 
+                                primaryTypographyProps={{ className: this.props.classes.selectedListItem }}
+                                secondary={`${recommendedRoomStartTime.toLocaleDateString()} @ ${recommendedRoomStartTime.toLocaleTimeString()}`}
+                                secondaryTypographyProps={{ className: this.props.classes.selectedListItem }} />
                         </ListItem>
                     </List>
                 </div>
@@ -137,8 +132,18 @@ class DiscussionComponent extends React.Component<DiscussionProps, DiscussionSta
                     <Typography variant="body1">This discussion recommends rooms based on your {traitsList}.</Typography>
 
                     {/* this will ultimately need to be somewhat dynamic, but i'm hard coding gender for demonstrative purposes */}
-                    <Select placeholder="Select the gender with which you identify" value={this.state.selectedGender} />
-
+                    <FormControl className={this.props.classes.formControl}>
+                        <InputLabel>Your gender</InputLabel>
+                        <Select 
+                            fullWidth 
+                            onChange={this.handleGenderChange}
+                            placeholder="Select the gender with which you identify" 
+                            value={this.state.selectedGender}>
+                            <MenuItem value="female">Female</MenuItem>
+                            <MenuItem value="other">Other</MenuItem>
+                            <MenuItem value="male">Male</MenuItem>
+                        </Select>
+                    </FormControl>
                 </div>
 
                 <div className="rooms-container">
@@ -147,13 +152,21 @@ class DiscussionComponent extends React.Component<DiscussionProps, DiscussionSta
                     <List>
                         {this.state.discussion.rooms.map(room => {
                             const startTime = new Date(room.startTime);
+                            const isSelected = !!recommendedRoom && room.id === recommendedRoom.id;
+                            const onClickHandler = (event: React.MouseEvent<HTMLElement>) => this.handleClick(room.id);
 
                             return (
                                 <ListItem
-                                    className={!!recommendedRoom && room.id === recommendedRoom.id ? this.props.classes.selectedListItem : ""}
+                                    button
+                                    className={isSelected ? this.props.classes.selectedListItem : ""}
                                     key={room.id}
-                                    selected={!!recommendedRoom && room.id === recommendedRoom.id}>
-                                    <ListItemText primary={room.name} secondary={`${startTime.toLocaleDateString()} @ ${startTime.toLocaleTimeString()}`} />
+                                    onClick={onClickHandler}
+                                    selected={isSelected}>
+                                    <ListItemText 
+                                        primary={room.name} 
+                                        primaryTypographyProps={ {className: isSelected ? this.props.classes.selectedListItem : undefined }}
+                                        secondary={`${startTime.toLocaleDateString()} @ ${startTime.toLocaleTimeString()}`}
+                                        secondaryTypographyProps={{className: isSelected ? this.props.classes.selectedListItem : undefined }} />
                                 </ListItem>
                             );
                         })}
@@ -161,6 +174,34 @@ class DiscussionComponent extends React.Component<DiscussionProps, DiscussionSta
                 </div>
             </div>
         );
+    }
+    
+    private async updateRoomRecommendations(discussion: Discussion) {
+        // TODO: not this
+        const trait = {
+            name: 'gender',
+            possibleValues: ['male', 'female', 'other'],
+        };
+
+        const roomRecommendations = await this
+            ._roomRecommendationProvider
+            .recommendRooms(
+                discussion.rooms, 
+                this._authProvider.getCurrentUser()!, trait
+            );
+
+        if (roomRecommendations.length) {
+            this.setState({ recommendedRoom: roomRecommendations[0] });
+        }
+    }
+
+    private handleClick = (roomId: string) => {
+        this.props.history.push(`/rooms/${roomId}`);
+    }
+
+    private handleGenderChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        this.setState({ selectedGender: event.target.value });
+        this.updateRoomRecommendations(this.state.discussion!);
     }
 }
 
