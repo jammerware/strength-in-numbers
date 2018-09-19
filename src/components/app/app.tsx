@@ -10,7 +10,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import MenuIcon from '@material-ui/core/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
@@ -20,6 +19,7 @@ import DeveloperBoardIcon from '@material-ui/icons/DeveloperBoard';
 import InfoIcon from '@material-ui/icons/Info';
 import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import HomeIcon from '@material-ui/icons/Home';
+import MenuIcon from '@material-ui/icons/Menu';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 
 import DiscussionsComponent from '../discussions/component-discussions';
@@ -135,7 +135,7 @@ class App extends React.Component<AppProps, AppState> {
                             aria-label="Open drawer"
                             onClick={this.handleDrawerOpen}
                             className={classNames(classes.menuButton, this.state.open && classes.hide)}>
-                            <MenuIcon open={!this.state.open} />
+                            <MenuIcon />
                         </IconButton>
                         <Typography variant="title" color="inherit" noWrap>Strength in Numbers</Typography>
                     </Toolbar>
