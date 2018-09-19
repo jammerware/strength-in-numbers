@@ -1,12 +1,19 @@
 import * as firebase from 'firebase';
 import * as firebaseUi from 'firebaseui';
 import { StorageProvider } from './provider-storage';
+import { User } from '../models/user';
 
 export class AuthProvider {
     constructor(private storageProvider = new StorageProvider()) { }
 
     public getCurrentUser() {
-        return firebase.auth().currentUser;
+        const firebaseUser = firebase.auth().currentUser;
+
+        if (firebaseUser) {
+            return User.fromFirebaseUser(firebaseUser);
+        }
+
+        return null;
     }
 
     public startAuthWithSelector(selector: string) {
@@ -55,13 +62,7 @@ export class AuthProvider {
         firebase.initializeApp(appConfig);
         firebase.auth().onAuthStateChanged(firebaseUser => {
             if (firebaseUser) {
-                this.storageProvider.saveUser({
-                    avatarUrl: firebaseUser.photoURL,
-                    displayName: firebaseUser.displayName,
-                    email: firebaseUser.displayName,
-                    gender: 'other',
-                    googleUid: firebaseUser.uid
-                });
+                this.storageProvider.saveUser(User.fromFirebaseUser(firebaseUser));
             }
         });
     }
