@@ -14,12 +14,8 @@ export default class ParticipantCard extends React.Component<ParticipantCardProp
     private _twilioVideoDomProvider = new TwilioVideoDomProvider();
     private _videoContainerRef = React.createRef<HTMLDivElement>();
 
-    constructor(props: ParticipantCardProps) {
-        super(props);
-    }
-
     public componentDidMount() {
-        this.props.participant.on('trackStarted', (track: any) => {
+        this.props.participant.tracks.forEach((track: any, trackId: string) => {
             this._twilioVideoDomProvider.attachTrack(track, this._videoContainerRef.current);
         });
     }

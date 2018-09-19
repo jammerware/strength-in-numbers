@@ -26,6 +26,7 @@ interface RoomState {
     accessToken: string | null;
     connectedToRoom?: any;
     discussion?: Discussion;
+    dominantSpeaker?: any;
     identity: string;
     isConnected: boolean;
     otherParticipants: any[];
@@ -68,6 +69,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     }
 
     public render() {
+        console.log('the dominan speaker is', this.state.dominantSpeaker);
         if (!this.state.room || !this.state.discussion) { return null; }
 
         // render chat widget if it's time
@@ -97,7 +99,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                                 <Typography variant="subheading">{this.state.discussion.subtitle}</Typography>
                             </div>
                             <div className="dominant-speaker-container">
-                                
+                                {!!this.state.dominantSpeaker && <ParticipantCard participant={this.state.dominantSpeaker} room={this.state.connectedToRoom} />}
                             </div>
                             <div className="other-participants-container">
                                 {participantCams}
@@ -116,7 +118,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                                     onNameChange={this.handleNameChange} />
                             </ExpansionPanelDetails>
                         </ExpansionPanel>
-                        <ExpansionPanel>
+                        <ExpansionPanel defaultExpanded>
                             <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
                                 <Typography variant="button" color="primary">Your camera</Typography>
                             </ExpansionPanelSummary>
@@ -142,7 +144,6 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     }
 
     private addParticipant(participant: any) {
-        console.log('adding participant', participant.identity);
         this.state.otherParticipants.push(participant);
         this.forceUpdate();
     }
@@ -164,12 +165,11 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
 
                 // add a participant when they join the room
                 room.on('participantConnected', (participant: any) => {
-                    console.log('Joined', participant);
                     this.addParticipant(participant);
                 });
 
-                room.on('dominantSpeakerChanged', (event: any) => {
-                    // todo: something
+                room.on('dominantSpeakerChanged', (dominantSpeaker: any) => {
+                    this.setState({ dominantSpeaker });
                 });
             });
 

@@ -2,7 +2,6 @@ import * as React from 'react';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 
 interface RoomConnectDisconnectProps {
     onConnect: () => Promise<void>;
@@ -25,9 +24,6 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
     public render() {
         return (
             <div>
-                {this.state.isConnected &&
-                    <Typography variant="body2">You're connected!</Typography>
-                }
                 <Grid container spacing={8}>
                     <Grid item xs={10}>
                         <TextField

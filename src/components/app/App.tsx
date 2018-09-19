@@ -20,6 +20,7 @@ import DeveloperBoardIcon from '@material-ui/icons/DeveloperBoard';
 import InfoIcon from '@material-ui/icons/Info';
 import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import HomeIcon from '@material-ui/icons/Home';
+import PermIdentityIcon from '@material-ui/icons/PermIdentity';
 
 import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
@@ -111,6 +112,7 @@ class App extends React.Component<AppProps, AppState> {
     private _handleNavToHome = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/');
     private _handleNavToDiscussions = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions');
     private _handleNavToTechDemo = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/f6823c6e-4da7-4000-adc7-71e8cc1e25d4');
+    private _handleNavToLogin = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/login');
     private _handleNavToAbout = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about');
 
     constructor(props: AppProps) {
@@ -172,6 +174,12 @@ class App extends React.Component<AppProps, AppState> {
                     </List>
                     <Divider />
                     <List>
+                        <ListItem button onClick={this._handleNavToLogin}>
+                            <ListItemIcon>
+                                <PermIdentityIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Log in" />
+                        </ListItem>
                         <ListItem button onClick={this._handleNavToAbout}>
                             <ListItemIcon>
                                 <InfoIcon />
