@@ -17,10 +17,10 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import DeveloperBoardIcon from '@material-ui/icons/DeveloperBoard';
 import InfoIcon from '@material-ui/icons/Info';
-import FeaturedVideoIcon from '@material-ui/icons/FeaturedVideo';
 import HomeIcon from '@material-ui/icons/Home';
 import MenuIcon from '@material-ui/icons/Menu';
 import PermIdentityIcon from '@material-ui/icons/PermIdentity';
+import PersonIcon from '@material-ui/icons/Person';
 
 import DiscussionsComponent from '../discussions/component-discussions';
 import { LandingComponent } from '../landing/component-landing';
@@ -28,6 +28,8 @@ import { RoomComponent } from '../room/component-room';
 import { LoginComponent } from '../login/component-login';
 import DiscussionComponent from '../discussion/discussion';
 import RoomUnavailableComponent from '../room-unavailable/component-room-unavailable';
+import UserProfileComponent from '../user-profile/user-profile';
+
 import './app.css';
 
 const drawerWidth = 240;
@@ -111,9 +113,9 @@ class App extends React.Component<AppProps, AppState> {
     // see https://stackoverflow.com/questions/36677733/why-shouldnt-jsx-props-use-arrow-functions-or-bind
     private _handleNavToHome = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/');
     private _handleNavToDiscussions = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/discussions');
-    private _handleNavToTechDemo = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/rooms/f6823c6e-4da7-4000-adc7-71e8cc1e25d4');
     private _handleNavToLogin = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/login');
     private _handleNavToAbout = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/about');
+    private _handleNavToProfile = (event: React.MouseEvent<HTMLElement>) => this.handleNavigate('/profile');
 
     constructor(props: AppProps) {
         super(props);
@@ -165,11 +167,11 @@ class App extends React.Component<AppProps, AppState> {
                             </ListItemIcon>
                             <ListItemText primary="Discussions" />
                         </ListItem>
-                        <ListItem button onClick={this._handleNavToTechDemo}>
+                        <ListItem button onClick={this._handleNavToProfile}>
                             <ListItemIcon>
-                                <FeaturedVideoIcon />
+                                <PersonIcon />
                             </ListItemIcon>
-                            <ListItemText primary="Video tech demo" />
+                            <ListItemText primary="Your profile" />
                         </ListItem>
                     </List>
                     <Divider />
@@ -196,6 +198,7 @@ class App extends React.Component<AppProps, AppState> {
                         <Route path="/rooms/:roomId" exact component={RoomComponent} />
                         <Route path="/rooms/:roomId/unavailable" component={RoomUnavailableComponent} />
                         <Route path="/login" component={LoginComponent} />
+                        <Route path="/profile" component={UserProfileComponent} />
                         <Route path="/" exact component={LandingComponent} />
                     </div>
                 </main>

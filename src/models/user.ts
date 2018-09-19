@@ -11,7 +11,7 @@ export class User {
         return {
             avatarUrl: firebaseUser.photoURL,
             displayName: firebaseUser.displayName,
-            email: firebaseUser.displayName,
+            email: firebaseUser.email,
             gender: 'other',
             googleUid: firebaseUser.uid
         };
