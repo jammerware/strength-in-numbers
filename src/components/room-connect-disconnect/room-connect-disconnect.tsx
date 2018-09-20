@@ -23,16 +23,16 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
 
     public render() {
         return (
-            <div>
-                <Grid container spacing={8}>
-                    <Grid item xs={10}>
+            <div style={{width: '100%'}}>
+                <Grid container spacing={8} style={{display: 'flex'}}>
+                    <Grid item style={{ flexGrow: 1 }}>
                         <TextField
                             disabled={this.state.isConnected}
                             fullWidth
                             onChange={this.handleNameChange}
                             placeholder="What should people call you?" />
                     </Grid>
-                    <Grid item xs={2}>
+                    <Grid item>
                         <Button
                             color={this.state.isConnected ? "secondary" : "primary"}
                             disabled={!this.state.name}

@@ -69,7 +69,6 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
     }
 
     public render() {
-        console.log('the dominan speaker is', this.state.dominantSpeaker);
         if (!this.state.room || !this.state.discussion) { return null; }
 
         // render chat widget if it's time
