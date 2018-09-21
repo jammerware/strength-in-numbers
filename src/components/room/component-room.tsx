@@ -133,7 +133,17 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
                                 {roomChatWidget}
                             </ExpansionPanelDetails>
                         </ExpansionPanel>
-                        <div>
+                        <ExpansionPanel>
+                            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography variant="button" color="primary">Discussion Agenda</Typography>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                                <Typography variant="body1">
+                                    {this.state.discussion ? this.state.discussion.agenda : ''}
+                                </Typography>
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                        <div style={{ marginTop: '1rem' }}>
                             <HelpWithMisconduct room={this.state.room} />
                         </div>
                     </Grid>
@@ -156,7 +166,7 @@ class RoomComponentWithoutRouter extends React.Component<RoomProps, RoomState> {
             .connect(this.state.accessToken, { name: roomId, dominantSpeaker: true })
             .then((room: any) => {
                 this.setState({ connectedToRoom: room });
-               
+
                 // add participants already present in the room when the user joins
                 room.participants.forEach((participant: any) => {
                     this.addParticipant(participant);

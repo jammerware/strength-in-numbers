@@ -124,6 +124,7 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
                         className={classes.messageText}
                         fullWidth
                         onChange={this.handleTextChange}
+                        onKeyPress={this.handleKeypress}
                         placeholder="What do you want to say?"
                         inputRef={this._messageTextFieldRef}
                         value={this.state.messageText} />
@@ -142,6 +143,12 @@ class RoomChat extends React.Component<RoomChatProps, RoomChatState> {
 
     private handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ messageText: event.target.value });
+    }
+
+    private handleKeypress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            this.handleSendButtonClick();
+        }
     }
 
     private handleSendButtonClick = async () => {

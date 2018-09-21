@@ -23,13 +23,14 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
 
     public render() {
         return (
-            <div style={{width: '100%'}}>
-                <Grid container spacing={8} style={{display: 'flex'}}>
+            <div style={{ width: '100%' }}>
+                <Grid container spacing={8} style={{ display: 'flex' }}>
                     <Grid item style={{ flexGrow: 1 }}>
                         <TextField
                             disabled={this.state.isConnected}
                             fullWidth
                             onChange={this.handleNameChange}
+                            onKeyPress={this.handleKeyPress}
                             placeholder="What should people call you?" />
                     </Grid>
                     <Grid item>
@@ -52,6 +53,12 @@ export default class RoomConnectDisconnect extends React.Component<RoomConnectDi
         else {
             this.setState({ isConnected: true });
             await this.props.onConnect();
+        }
+    }
+
+    private handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter') {
+            this.handleClick();
         }
     }
 

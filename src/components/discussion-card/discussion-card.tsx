@@ -31,7 +31,7 @@ const styles = (theme: Theme) => createStyles({
         marginTop: theme.spacing.unit * 1.5,
     },
     card: {
-        maxWidth: 380,
+        maxWidth: 400,
     },
     chip: {
         margin: theme.spacing.unit / 4,

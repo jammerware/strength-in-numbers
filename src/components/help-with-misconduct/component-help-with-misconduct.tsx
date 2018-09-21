@@ -24,6 +24,7 @@ interface HelpWithMisconductState {
 
 export default class HelpWithMisconductComponent extends React.Component<HelpWithMisconductProps, HelpWithMisconductState> {
     private _appEmailNotificationsProvider = new AppEmailNotificationsProvider();
+    private _textFieldRef = React.createRef<HTMLTextAreaElement>();
 
     constructor(props: HelpWithMisconductProps) {
         super(props);
@@ -51,8 +52,8 @@ export default class HelpWithMisconductComponent extends React.Component<HelpWit
                             impacted by misconduct, let us know here, and we'll look into it. Thanks for providing your feedback!
                         </DialogContentText>
                         <TextField
-                            autoFocus
                             fullWidth
+                            inputRef={this._textFieldRef}
                             multiline
                             onChange={this.handleMessageChange}
                             placeholder="Describe what went wrong during your discussion"
@@ -87,6 +88,10 @@ export default class HelpWithMisconductComponent extends React.Component<HelpWit
 
     private handleDialogOpen = () => {
         this.setState({ isDialogOpen: true });
+
+        if (this._textFieldRef.current) {
+            this._textFieldRef.current.focus();
+        }
     }
 
     private handleMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
